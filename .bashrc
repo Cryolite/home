@@ -82,6 +82,8 @@ alias mv='mv -iv'
 alias cp='cp -iv'
 alias crontab='crontab -i'
 alias emacs='emacs -nw'
+alias man='env LANG=C man'
+alias diffy='diff -y -W $COLUMNS'
 
 alias isabelle="${HOME}/local/Isabelle2011/bin/isabelle emacs -w false"
 
@@ -142,5 +144,16 @@ case "$TERM" in
         if [ -f /etc/redhat-release ]; then
             yum check-update
         fi
+        ;;
+esac
+
+# Configurations to establish TeX Live environment.
+case "$TERM" in
+    screen)
+        ;;
+    *)
+        export INFOPATH="${INFOPATH:+$INFOPATH:}/usr/local/texlive/2013/texmf-dist/doc/info"
+        export MANPATH="$MANPATH:/usr/local/texlive/2013/texmf-dist/doc/man"
+        export PATH="${PATH:+$PATH:}/usr/local/texlive/2013/bin/x86_64-linux"
         ;;
 esac
