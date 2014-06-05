@@ -18,7 +18,9 @@ export BOOST_ROOT="${HOME}/local/boost/latest"
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-stty stop undef
+if [ -t 0 ]; then
+  stty stop undef
+fi
 
 # don't put duplicate lines in the history. See bash(1) for more options
 # ... or force ignoredups and ignorespace
@@ -107,6 +109,42 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+
+lsless ()
+{
+    if [ ! -t 1 ]; then
+        echo "error: not a tty" >&2
+        exit 1
+    fi
+    ls --color=always "$@" | less -R
+}
+
+llless ()
+{
+    if [ ! -t 1 ]; then
+        echo "error: not a tty" >&2
+        exit 1
+    fi
+    ll --color=always "$@" | less -R
+}
+
+llaless ()
+{
+    if [ ! -t 1 ]; then
+        echo "error: not a tty" >&2
+        exit 1
+    fi
+    lla --color=always "$@" | less -R
+}
+
+diffyless ()
+{
+    if [ ! -t 1 ]; then
+        echo "error: not a tty" >&2
+        exit 1
+    fi
+    diffy "$@" | less
+}
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
