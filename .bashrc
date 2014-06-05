@@ -114,7 +114,7 @@ lsless ()
 {
     if [ ! -t 1 ]; then
         echo "error: not a tty" >&2
-        exit 1
+        return 1
     fi
     ls --color=always "$@" | less -R
 }
@@ -123,7 +123,7 @@ llless ()
 {
     if [ ! -t 1 ]; then
         echo "error: not a tty" >&2
-        exit 1
+        return 1
     fi
     ll --color=always "$@" | less -R
 }
@@ -132,7 +132,7 @@ llaless ()
 {
     if [ ! -t 1 ]; then
         echo "error: not a tty" >&2
-        exit 1
+        return 1
     fi
     lla --color=always "$@" | less -R
 }
@@ -141,7 +141,7 @@ diffyless ()
 {
     if [ ! -t 1 ]; then
         echo "error: not a tty" >&2
-        exit 1
+        return 1
     fi
     diffy "$@" | less
 }
