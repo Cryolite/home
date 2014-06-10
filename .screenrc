@@ -2,6 +2,7 @@ startup_message off
 defscrollback 10000
 
 escape ^z^z
+bind ^x
 
 chdir
 hardstatus off
