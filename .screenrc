@@ -1,0 +1,16 @@
+startup_message off
+defscrollback 10000
+
+escape ^z^z
+
+chdir
+hardstatus off
+hardstatus string "%h%? users: %u%?"
+backtick 1 0 0 id -un
+backtick 2 1 0 .screen/loadaverage.sh
+backtick 3 1 0 .screen/memory.sh
+backtick 4 1 0 .screen/battery.sh
+hardstatus alwayslastline "%{= bw}%02c:%02s%{-}  %-w%{=u kw} %n %t %{-}%+w %= %1`@%H  %2`  %3`  %4`"
+
+screen -t top 9 top -d1
+screen
