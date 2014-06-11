@@ -8,10 +8,11 @@ chdir
 hardstatus off
 hardstatus string "%h%? users: %u%?"
 backtick 1 0 0 id -un
-backtick 2 1 0 .screen/loadaverage.sh
-backtick 3 1 0 .screen/memory.sh
-backtick 4 1 0 .screen/battery.sh
-hardstatus alwayslastline "%{= bw}%02c:%02s%{-}  %-w%{=u kw} %n %t %{-}%+w %= %1`@%H  %2`  %3`  %4`"
+backtick 2 0 0 hostname -f
+backtick 3 1 0 .screen/load_average.sh
+backtick 4 1 0 .screen/memory.sh
+backtick 5 1 0 .screen/battery.sh
+hardstatus alwayslastline "%{= bw}%02c:%02s%{-}  %-w%{=u kw}%n %t%{-}%+w %= %1`@%2`  %3`  %4`  %5`"
 
 screen -t top 9 top -d1
 screen
