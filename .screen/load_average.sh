@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-BAR_INDICATOR=0
-MAX_LOAD_AVERAGE=$NUM_CPU_CORES
+BAR_INDICATOR=1
+MAX_LOAD_AVERAGE=4
 MAX_BAR_LENGTH=80
 YELLOW_THRESHOLD=50
 RED_THRESHOLD=100
@@ -36,17 +36,17 @@ done
 if [ $BAR_INDICATOR -ne 0 ]; then
   bar_length=$((($load_average_centuple * $MAX_BAR_LENGTH) / ($MAX_LOAD_AVERAGE * 100)))
   if [ $((0 <= $percentage && $percentage < $YELLOW_THRESHOLD)) -ne 0 ]; then
-    echo -en "\005{= kb}${padding}${load_average}["
+    echo -en "${padding}${load_average}[\005{= kb}"
     "$(dirname "$0")/num2bar.sh" $bar_length $MAX_BAR_LENGTH
-    echo -e "]\005{-}"
+    echo -e "\005{-}]"
   elif [ $(($YELLOW_THRESHOLD <= $percentage && $percentage < $RED_THRESHOLD)) -ne 0 ]; then
-    echo -en "\005{= ky}${padding}${load_average}["
+    echo -en "${padding}${load_average}[\005{= ky}"
     "$(dirname "$0")/num2bar.sh" $bar_length $MAX_BAR_LENGTH
-    echo -e "]\005{-}"
+    echo -e "\005{-}]"
   elif [ $(($RED_THRESHOLD <= $percentage)) -ne 0 ]; then
-    echo -en "\005{= kr}${padding}${load_average}["
+    echo -en "${padding}${load_average}[\005{= kr}"
     "$(dirname "$0")/num2bar.sh" $bar_length $MAX_BAR_LENGTH
-    echo -e "]\005{-}"
+    echo -e "\005{-}]"
   else
     exit 1
   fi
