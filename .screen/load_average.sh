@@ -6,7 +6,7 @@ MAX_BAR_LENGTH=80
 YELLOW_THRESHOLD=50
 RED_THRESHOLD=100
 
-load_average=$(uptime | grep -Eo 'load average: [[:digit:]]\.[[:digit:]][[:digit:]]' | grep -Eo '[[:digit:]]\.[[:digit:]][[:digit:]]')
+load_average=$(uptime | grep -Eo 'load average: [[:digit:]]+\.[[:digit:]][[:digit:]]' | grep -Eo '[[:digit:]]+\.[[:digit:]][[:digit:]]')
 load_average_centuple=$(echo "scale=0; $load_average * 100" | bc | grep -Eo '^[[:digit:]]+')
 percentage=$(($load_average_centuple / $MAX_LOAD_AVERAGE))
 
