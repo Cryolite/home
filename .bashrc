@@ -219,3 +219,16 @@ case "$TERM" in
         fi
         ;;
 esac
+
+case "$TERM" in
+  screen)
+    ;;
+  *)
+    screen -q -ls
+    if [ $? -ne 9 ]; then
+      echo -e '\e[36m'
+      screen -ls
+      echo -en '\e[m'
+    fi
+    ;;
+esac
