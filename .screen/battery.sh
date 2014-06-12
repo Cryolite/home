@@ -28,11 +28,11 @@ if [ $(($YELLOW_THRESHOLD <= $percentage && $percentage <= 100)) -ne 0 ]; then
   echo -e "\005{-}]"
 elif [ $(($RED_THRESHOLD <= $percentage && $percentage < $YELLOW_THRESHOLD)) -ne 0 ]; then
   echo -en "${padding}${percentage}%[\005{= ky}"
-  $(dirname "$0")/num2bar.sh $bar_length $MAX_BAR_LENGTH
+  "$(dirname "$0")/num2bar.sh" $bar_length $MAX_BAR_LENGTH
   echo -e "\005{-}]"
-elif [ $((0 <= $percentage && $percentage <= $RED_THRESHOLD)) -ne 0 ]; then
+elif [ $((0 <= $percentage && $percentage < $RED_THRESHOLD)) -ne 0 ]; then
   echo -en "${padding}${percentage}%[\005{= kr}"
-  $(dirname "$0")/num2bar.sh $bar_length $MAX_BAR_LENGTH
+  "$(dirname "$0")/num2bar.sh" $bar_length $MAX_BAR_LENGTH
   echo -e "\005{-}]"
 else
   exit 1

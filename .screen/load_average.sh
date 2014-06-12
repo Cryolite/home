@@ -16,6 +16,8 @@ elif [ $((1000 <= $load_average_centuple && $load_average_centuple < 10000)) -ne
   load_average_oom=2
 elif [ $((10000 <= $load_average_centuple && $load_average_centuple < 100000)) -ne 0 ]; then
   load_average_oom=3
+else
+  exit 1
 fi
 
 if [ $((0 <= $MAX_LOAD_AVERAGE && $MAX_LOAD_AVERAGE < 10)) -ne 0 ]; then
@@ -24,6 +26,8 @@ elif [ $((10 <= $MAX_LOAD_AVERAGE && $MAX_LOAD_AVERAGE < 100)) -ne 0 ]; then
   max_load_average_oom=2
 elif [ $((100 <= $MAX_LOAD_AVERAGE && $MAX_LOAD_AVERAGE < 1000)) -ne 0 ]; then
   max_load_average_oom=3
+else
+  exit 1
 fi
 
 [ $(($load_average_oom <= $max_load_average_oom)) -ne 0 ] || exit 1
