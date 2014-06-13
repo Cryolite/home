@@ -205,3 +205,12 @@
        '(("\\.hpp$" . c++-mode)
          ("\\.cpp$" . c++-mode)
          ) auto-mode-alist))
+
+
+(add-hook 'sh-mode-hook
+          '(lambda ()
+             (progn
+               (setq sh-basic-offset 4
+                     sh-indentation 4
+                     sh-indent-for-case-label 0
+                     sh-indent-for-case-alt '+))))
