@@ -12,6 +12,7 @@ backtick 3 1 0 $HOME/.screen/load_average.sh
 backtick 4 1 0 $HOME/.screen/memory.sh
 backtick 5 1 0 $HOME/.screen/battery.sh
 hardstatus alwayslastline "%{= bw}%02c:%02s%{-}  %-w%{=u kw}%n %t%{-}%+w %= %1`@%2`  %3`  %4`  %5`"
+altscreen on
 
 screen -t top 9 top -d1
 chdir
