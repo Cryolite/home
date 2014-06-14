@@ -209,6 +209,7 @@
       (append
        '(("\\.hpp$" . c++-mode)
          ("\\.cpp$" . c++-mode)
+         ("\\.ipp$" . c++-mode)
          ) auto-mode-alist))
 
 
