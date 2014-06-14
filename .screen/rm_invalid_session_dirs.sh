@@ -6,7 +6,7 @@ list="$(screen -ls || true)"
 
 for session_dir in "$HOME/.screen/sessions/"*; do
     if [ "$session_dir" = "$HOME/.screen/sessions/*" ]; then
-	break
+        break
     fi
     session=${session_dir##*/}
     if echo "$list" | grep -Fq "$session"; then
