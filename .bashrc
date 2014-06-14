@@ -146,6 +146,15 @@ diffyless ()
     diffy "$@" | less
 }
 
+reatach ()
+{
+    "$HOME/.screen/reatach.sh" "$@"
+}
+
+if [ "$TERM" = screen ]; then
+    alias fix-ssh-agent='"$HOME/.screen/rm_invalid_session_dirs.sh"; [ -f "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh" ] && . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"'
+fi
+
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
