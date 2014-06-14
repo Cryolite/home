@@ -15,6 +15,43 @@ fi
 
 list="$(screen -ls || true)"
 
+exec_screen ()
+{
+    if [ -z "$SSH_AUTH_SOCK" -a -z "$SSH_CLIENT" -a -z "$SSH_CONNECTION" -a -z "$SSH_TTY" ]; then
+        cat > "$session_dir/fix-ssh-agent.sh" <<EOF
+\\unset SSH_AUTH_SOCK
+\\unset SSH_CLIENT
+\\unset SSH_CONNECTION
+\\unset SSH_TTY
+\\rm "$session_dir/fix-ssh-agent.sh"
+EOF
+        chmod 700 "$session_dir/fix-ssh-agent.sh"
+        exec screen -r $1
+    fi
+    if [ -n "$SSH_AUTH_SOCK" -a -z "$SSH_CLIENT" -a -z "$SSH_CONNECTION" -a -z "$SSH_TTY" ]; then
+	cat > "$session_dir/fix-ssh-agent.sh" <<EOF
+\\export SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+\\unset SSH_CLIENT
+\\unset SSH_CONNECTION
+\\unset SSH_TTY
+\\rm "$session_dir/fix-ssh-agent.sh"
+EOF
+	chmod 700 "$session_dir/fix-ssh-agent.sh"
+	exec screen -r $1
+    fi
+    if [ -n "$SSH_AUTH_SOCK" -a -n "$SSH_CLIENT" -a -n "$SSH_CONNECTION" -a -n "$SSH_TTY" ]; then
+	cat > "$session_dir/fix-ssh-agent.sh" <<EOF
+\\export SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
+\\export SSH_CLIENT="$SSH_CLIENT"
+\\export SSH_CONNECTION="$SSH_CONNECTION"
+\\export SSH_TTY="$SSH_TTY"
+\\rm "$session_dir/fix-ssh-agent.sh"
+EOF
+	chmod 700 "$session_dir/fix-ssh-agent.sh"
+	exec screen -r $1
+    fi
+}
+
 case $# in
 0)
     num_detached=$(echo "$list" | grep -F 'Detached' | wc -l)
@@ -31,30 +68,9 @@ case $# in
     session="$(echo "$list" | grep -F 'Detached' | grep -Eo '[[:digit:]]+\.[^\.]+\.[^[:space:]]+')"
     session_dir="$HOME/.screen/sessions/$session"
     mkdir -m 700 -p "$session_dir"
-    if [ -z "$SSH_CLIENT" -a -z "$SSH_CONNECTION" -a -z "$SSH_TTY" -a -z "$SSH_AUTH_SOCK" ]; then
-        cat > "$session_dir/fix-ssh-agent.sh" <<EOF
-\\unset SSH_CLIENT
-\\unset SSH_CONNECTION
-\\unset SSH_TTY
-\\unset SSH_AUTH_SOCK
-\\rm "$session_dir/fix-ssh-agent.sh"
-EOF
-        chmod 700 "$session_dir/fix-ssh-agent.sh"
-        exec screen -r
-    fi
-    [ -n "$SSH_CLIENT" -a -n "$SSH_CONNECTION" -a -n "$SSH_TTY" -a -n "$SSH_AUTH_SOCK" ] || {
-        echo 'reatach.sh:error: a logic error' >&2
-        exit 1
-    }
-    cat > "$session_dir/fix-ssh-agent.sh" <<EOF
-\\export SSH_CLIENT="$SSH_CLIENT"
-\\export SSH_CONNECTION="$SSH_CONNECTION"
-\\export SSH_TTY="$SSH_TTY"
-\\export SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
-\\rm "$session_dir/fix-ssh-agent.sh"
-EOF
-    chmod 700 "$session_dir/fix-ssh-agent.sh"
-    exec screen -r
+    exec_screen
+    echo 'reatach.sh:error: a logic error' >&2
+    exit 1
     ;;
 1)
     { echo "$list" | grep -Eo '[[:digit:]]+\.[^\.]+\.[^[:space:]]' | grep -Fq "$1"; } || {
@@ -76,30 +92,9 @@ EOF
     session="$(echo "$list" | grep -Eo '[[:digit:]]+\.[^\.]+\.[^[:space:]]' | grep -F "$1")"
     session_dir="$HOME/.screen/sessions/$session"
     mkdir -m 700 -p "$session_dir"
-    if [ -z "$SSH_CLIENT" -a -z "$SSH_CONNECTION" -a -z "$SSH_TTY" -a -z "$SSH_AUTH_SOCK" ]; then
-        cat > "$session_dir/fix-ssh-agent.sh" <<EOF
-\\unset SSH_CLIENT
-\\unset SSH_CONNECTION
-\\unset SSH_TTY
-\\unset SSH_AUTH_SOCK
-\\rm "$session_dir/fix-ssh-agent.sh"
-EOF
-        chmod 700 "$session_dir/fix-ssh-agent.sh"
-        exec screen -r
-    fi
-    [ -n "$SSH_CLIENT" -a -n "$SSH_CONNECTION" -a -n "$SSH_TTY" -a -n "$SSH_AUTH_SOCK" ] || {
-        echo 'reatach.sh:error: a logic error' >&2
-        exit 1
-    }
-    cat > "$session_dir/fix-ssh-agent.sh" <<EOF
-\\export SSH_CLIENT="$SSH_CLIENT"
-\\export SSH_CONNECTION="$SSH_CONNECTION"
-\\export SSH_TTY="$SSH_TTY"
-\\export SSH_AUTH_SOCK="$SSH_AUTH_SOCK"
-\\rm "$session_dir/fix-ssh-agent.sh"
-EOF
-    chmod 700 "$session_dir/fix-ssh-agent.sh"
-    exec screen -r "$session"
+    exec_screen "$session"
+    echo 'reatach.sh:error: a logic error' >&2
+    exit 1
     ;;
 *)
     echo 'reatach.sh:error: a logic error' >&2
