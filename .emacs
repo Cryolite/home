@@ -142,6 +142,7 @@
 (global-set-key "\M-n" 'scroll-up)
 (global-set-key "\M-p" 'scroll-down)
 
+(global-set-key "\C-xn" (lambda () (interactive) (other-window 1)))
 (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))
 
 (defun split-window-vertically-n (n)
