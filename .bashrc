@@ -51,7 +51,7 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color) color_prompt=yes;;
+    xterm-color|*-256color|screen*) color_prompt=yes;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -151,9 +151,10 @@ reatach ()
     "$HOME/.screen/reatach.sh" "$@"
 }
 
-if [ "$TERM" = screen ]; then
-    alias fix-ssh-agent='"$HOME/.screen/rm_invalid_session_dirs.sh"; [ -f "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh" ] && . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"'
-fi
+case "$TERM" in
+    screen*) alias fix-ssh-agent='"$HOME/.screen/rm_invalid_session_dirs.sh"; [ -f "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh" ] && . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"';;
+    *) ;;
+esac
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
@@ -187,7 +188,7 @@ elif [ "${BASH_COMPLETION_COMPAT_DIR-undefined}" != undefined ]; then
 fi
 
 case "$TERM" in
-    xterm*|rxvt*|screen)
+    xterm*|rxvt*|screen*)
         if [ "$color_prompt" = yes ]; then
             if [ "$has_git_completion" = yes ]; then
                 PS1='\n${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w$(__git_ps1)\[\033[00m\]\$ '
@@ -202,16 +203,14 @@ case "$TERM" in
             fi
         fi
         ;;
-    *)
-        ;;
+    *) ;;
 esac
 unset color_prompt force_color_prompt
 unset has_git_completion
 
 # Configurations to establish TeX Live environment.
 case "$TERM" in
-    screen)
-        ;;
+    screen*) ;;
     *)
         export INFOPATH="${INFOPATH:+$INFOPATH:}/usr/local/texlive/2013/texmf-dist/doc/info"
         export MANPATH="$MANPATH:/usr/local/texlive/2013/texmf-dist/doc/man"
@@ -220,8 +219,7 @@ case "$TERM" in
 esac
 
 case "$TERM" in
-    screen)
-        ;;
+    screen*) ;;
     *)
         if [ -f /etc/redhat-release ]; then
             yum check-update
@@ -230,14 +228,13 @@ case "$TERM" in
 esac
 
 case "$TERM" in
-  screen)
-    ;;
-  *)
-    screen -q -ls
-    if [ $? -ne 9 ]; then
-      echo -e '\e[36m'
-      screen -ls
-      echo -en '\e[m'
-    fi
-    ;;
+    screen*) ;;
+    *)
+        screen -q -ls
+        if [ $? -ne 9 ]; then
+            echo -e '\e[36m'
+            screen -ls
+            echo -en '\e[m'
+        fi
+        ;;
 esac
