@@ -4,8 +4,6 @@
 
 ulimit -c unlimited
 
-export EDITOR='emacs -nw'
-
 export PATH="${HOME}/local/bin${PATH:+:$PATH}"
 
 #if [ -f /etc/debian_version ] && grep -Fq 'squeeze/sid' /etc/debian_version; then
@@ -18,13 +16,15 @@ export BOOST_ROOT="${HOME}/local/boost/latest"
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
+export EDITOR='emacs -nw'
+
 if [ -t 0 ]; then
   stty stop undef
 fi
 
-# don't put duplicate lines in the history. See bash(1) for more options
-# ... or force ignoredups and ignorespace
-HISTCONTROL=ignoredups:ignorespace
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
@@ -45,7 +45,7 @@ shopt -s checkwinsize
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
