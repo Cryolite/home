@@ -7,9 +7,9 @@ bind ^x
 
 backtick 1 0 0 id -un
 backtick 2 0 0 hostname -f
-backtick 3 1 0 $HOME/.screen/load_average.sh
-backtick 4 1 0 $HOME/.screen/memory.sh
-backtick 5 1 0 $HOME/.screen/battery.sh
+backtick 3 1 0 "$HOME/.screen/load_average.sh"
+backtick 4 1 0 "$HOME/.screen/memory.sh"
+backtick 5 1 0 "$HOME/.screen/battery.sh"
 hardstatus alwayslastline "%{= bw}%02c:%02s%{-}  %-w%{=u kw}%n %t%{-}%+w %= %1`@%2`"
 altscreen on
 
