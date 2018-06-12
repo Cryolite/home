@@ -11,13 +11,6 @@
 (set-default-coding-systems 'utf-8)
 (setq file-name-coding-system 'utf-8)
 ;;
-;======================================================================
-; Anthy
-;    CTRL-\で入力モード切替え
-;======================================================================
-;(load-library "anthy")
-;(setq default-input-method "japanese-anthy")
-;;
 ;=======================================================================
 ;フォント
 ;=======================================================================
@@ -55,22 +48,16 @@
 ;=======================================================================
 ; Misc
 ;=======================================================================
-(mouse-wheel-mode)                        ;;ホイールマウス
-(global-font-lock-mode t)                    ;;文字の色つけ
-(setq line-number-mode t)                    ;;カーソルのある行番号を表示
-(setq column-number-mode t)                  ;;カーソルのあるカラム番号を表示
-(auto-compression-mode t)                    ;;日本語infoの文字化け防止
-(set-scroll-bar-mode 'right)                    ;;スクロールバーを右に表示
-;(global-set-key "\C-z" 'undo)                    ;;UNDO
-(setq frame-title-format                    ;;フレームのタイトル指定
-    (concat "%b - emacs@" system-name))
-
-;(display-time)                            ;;時計を表示
-;(global-set-key "\C-h" 'backward-delete-char)            ;;Ctrl-Hでバックスペース
-;(setq make-backup-files nil)                    ;;バックアップファイルを作成しない
-;(setq visible-bell t)                        ;;警告音を消す
-;(setq kill-whole-line t)                    ;;カーソルが行頭にある場合も行全体を削除
-;(when (boundp 'show-trailing-whitespace) (setq-default show-trailing-whitespace t))    ;;行末のスペースを強調表示
+(global-font-lock-mode t)
+(setq line-number-mode t)
+(setq column-number-mode t)
+(auto-compression-mode t)
+;(global-set-key "\C-z" 'undo)
+(setq frame-title-format (concat "%b - emacs@" system-name))
+(setq make-backup-files nil)
+(setq kill-whole-line t)
+(when (boundp 'show-trailing-whitespace) (setq-default show-trailing-whitespace t))
+;(setq visible-bell t)
 ;;
 ;=======================================================================
 ; 履歴の保存
@@ -126,11 +113,6 @@
 ; インデントポリシー
 ;=======================================================================
 (setq-default indent-tabs-mode nil)
-;;
-;=======================================================================
-; End of File
-;=======================================================================
-
 
 ;; Set up the keyboard so the delete key on both the regular keyboard
 ;; and the keypad delete the character under the cursor and to the right
@@ -189,7 +171,6 @@
 ;; always end a file with a newline
 ;(setq require-final-newline t)
 
-;;; Hacked by Ai Azuma. 2003/12/06.
 (set-background-color "black")
 (set-foreground-color "white")
 (set-cursor-color "white")
@@ -197,14 +178,18 @@
 
 (require 'cc-mode)
 
-;; Kernighan & Ritchie style
-(setq c-default-style "k&r")
+(setq c-default-style "bsd")
 
 (add-hook 'c-mode-common-hook
      	  '(lambda ()
-             (progn
-               (c-toggle-hungry-state 1)
-               (setq c-basic-offset 2 indent-tabs-mode nil))))
+             (setq c-basic-offset 2)
+             (c-toggle-hungry-state t)
+             (setq indent-tabs-mode nil)
+             (setq show-trailing-whitespace t)))
+
+(add-hook 'c++-mode-hook
+          '(lambda ()
+             (c-set-offset 'innamespace 0)))
 
 (setq auto-mode-alist
       (append
@@ -217,7 +202,7 @@
 (add-hook 'sh-mode-hook
           '(lambda ()
              (progn
-               (setq sh-basic-offset 4
-                     sh-indentation 4
+               (setq sh-basic-offset 2
+                     sh-indentation 2
                      sh-indent-for-case-label 0
                      sh-indent-for-case-alt '+))))
