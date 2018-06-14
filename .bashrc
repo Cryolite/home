@@ -101,7 +101,7 @@ alias emacs='emacs -nw'
 function alert ()
 {
     local exval=$?
-    local command="$(history | tail -n 1 | sed -e 's/^\s*[0-9]\+\s*//;s/[;&|]\s*alert\s*$//')"
+    local command="$(history | tail -n 1 | sed -e 's/^\s*[0-9]\+\s*//;s/^[0-9]\+-[0-9]\+-[0-9]\+_[0-9]\+:[0-9]\+:[0-9]\+\\\s\+//;s/[;&|]\s*alert\s*$//')"
     echo -en '\a'
     if test $exval -eq 0; then
         local message="alert: Command terminated normally.: $command"
