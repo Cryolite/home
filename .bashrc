@@ -204,14 +204,8 @@ fi
 #esac
 
 # check whether `bash-completion` includes `git-completion`.
-if [ "${BASH_COMPLETION_DIR-undefined}" != undefined ]; then
-    if [ -f "$BASH_COMPLETION_DIR/git" ]; then
-        has_git_completion=yes
-    fi
-elif [ "${BASH_COMPLETION_COMPAT_DIR-undefined}" != undefined ]; then
-    if [ -f "$BASH_COMPLETION_COMPAT_DIR/git-prompt" ]; then
-        has_git_completion=yes
-    fi
+if type -t __git_ps1 >/dev/null; then
+    has_git_completion=yes
 fi
 
 case "$TERM" in
