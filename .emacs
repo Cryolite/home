@@ -175,6 +175,7 @@
 (set-foreground-color "white")
 (set-cursor-color "white")
 
+(add-to-list 'load-path "~/.emacs.d/lisp/")
 
 (require 'cc-mode)
 
@@ -206,3 +207,10 @@
                      sh-indentation 2
                      sh-indent-for-case-label 0
                      sh-indent-for-case-alt '+))))
+
+(require 'cmake-mode)
+(setq auto-mode-alist
+      (append
+       '(("CMakeList\\.txt\\'", cmake-mode)
+         ("\\.cmake\\'", cmake-mode))
+       auto-mode-alist))
