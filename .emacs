@@ -214,3 +214,5 @@
        '(("CMakeList\\.txt\\'", cmake-mode)
          ("\\.cmake\\'", cmake-mode))
        auto-mode-alist))
+
+(require 'yaml-mode)
