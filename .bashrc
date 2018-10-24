@@ -206,6 +206,10 @@ fi
 # check whether `bash-completion` includes `git-completion`.
 if type -t __git_ps1 >/dev/null; then
     has_git_completion=yes
+elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
+    # For CentOS 7.
+    . /usr/share/git-core/contrib/completion/git-prompt.sh
+    has_git_completion=yes
 fi
 
 case "$TERM" in
