@@ -8,7 +8,11 @@ function print-usage ()
 {
   cat <<'EOF'
 Usage: reattach [pid[.tty.host]]
-Resume a detached GNU screen session.
+Resume a detached GNU screen session, and if a connection to an SSH
+authentication agent is forwarded to the current environment, then also
+prepare `fix-ssh-agent' command, which enables further forwarding of the agent
+connection to the reattached session. `fix-ssh-agent' command should be
+executed within the session reattached by this command.
 
   -h, --help                 Display this help and exit.
 EOF

@@ -1,6 +1,11 @@
 # This Bash file is not designed to be called directly, but rather is read by
 # `source` Bash builtin command in the very beginning of another Bash script.
 
+function main-source-filename ()
+{
+  basename "${BASH_SOURCE[$((${#BASH_SOURCE[@]} - 1))]}"
+}
+
 function print-error-message ()
 {
   if [[ -t 2 ]] && type -t tput >/dev/null; then
@@ -17,22 +22,22 @@ function print-error-message ()
 function die-with-logic-error ()
 {
   set +x
-  print-error-message "$(basename "${BASH_SOURCE[-1]}"): error: ${1-A logic error.}"
+  print-error-message "$(main-source-filename): error: ${1-A logic error.}"
   exit 1
 }
 
 function die-with-user-error ()
 {
   set +x
-  print-error-message "$(basename "${BASH_SOURCE[-1]}"): error: $1"
-  print-error-message "Try \`$(basename "${BASH_SOURCE[-1]}") --help' for more information."
+  print-error-message "$(main-source-filename): error: $1"
+  print-error-message "Try \`$(main-source-filename) --help' for more information."
   exit 1
 }
 
 function die-with-runtime-error ()
 {
   set +x
-  print-error-message "$(basename "${BASH_SOURCE[-1]}"): error: $1"
+  print-error-message "$(main-source-filename): error: $1"
   exit 1
 }
 
