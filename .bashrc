@@ -4,17 +4,20 @@
 
 ulimit -c unlimited
 
-export PATH="${HOME}/local/bin${PATH:+:$PATH}"
+export PATH="$HOME/.local/bin${PATH:+:$PATH}"
 
 #if [ -f /etc/debian_version ] && grep -Fq 'squeeze/sid' /etc/debian_version; then
 #    export LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}"
 #    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 #fi
 
-export BOOST_ROOT="${HOME}/local/boost/latest"
+export BOOST_ROOT="$HOME/local/boost/latest"
 
 # If not running interactively, don't do anything
-[ -z "$PS1" ] && return
+case $- in
+    *i*) ;;
+      *) return;;
+esac
 
 export EDITOR='emacs -nw'
 
@@ -173,15 +176,40 @@ function diffyless ()
     diffy "$@" | less
 }
 
-function reatach ()
+function fix-ssh-agent ()
 {
-    "$HOME/.screen/reatach.sh" "$@"
-}
+    if ! declare -p STY &>/dev/null; then
+        local error_message="\`fix-ssh-agent' is called in a terminal other than GNU screen."
+        if [[ -t 2 ]] && type -t tput >/dev/null; then
+            if (( "$(tput colors)" == 256 )); then
+                echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
+            else
+                echo "$(tput setaf 1)$error_message$(tput sgr0)" >&2
+            fi
+        else
+            echo "$error_message" >&2
+        fi
+        return 1
+    fi
 
-case "$TERM" in
-    screen*) alias fix-ssh-agent='"$HOME/.screen/rm_invalid_session_dirs.sh"; [ -f "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh" ] && . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"';;
-    *) ;;
-esac
+    if [[ ! -f $HOME/.screen/sessions/$STY/fix-ssh-agent.sh ]]; then
+        local error_message="\`$HOME/.screen/sessions/$STY/fix-ssh-agent.sh' does not exist. Resume this GNU screen session by \`reattach'."
+        if [[ -t 2 ]] && type -t tput >/dev/null; then
+            if (( "$(tput colors)" == 256 )); then
+                echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
+            else
+                echo "$(tput setaf 1)$error_message$(tput sgr0)" >&2
+            fi
+        else
+            echo "$error_message" >&2
+        fi
+        return 1
+    fi
+
+    "$HOME/.screen/rm-stale-session-dirs.sh"
+
+    . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"
+}
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile

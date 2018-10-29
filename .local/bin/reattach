@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+. "$HOME/.local/bin/common.sh"
+
+function print-usage ()
+{
+  cat <<'EOF'
+Usage: reattach [pid[.tty.host]]
+Resume a detached GNU screen session, and if a connection to an SSH
+authentication agent is forwarded to the current environment, then also
+prepare `fix-ssh-agent' command, which enables further forwarding of the agent
+connection to the reattached session. `fix-ssh-agent' command should be
+executed within the session reattached by this command.
+
+  -h, --help                 Display this help and exit.
+EOF
+}
+
+case "${1-}" in
+-h|--h|--he|--hel|--help)
+  set +x
+  print-usage
+  exit 0
+  ;;
+esac
+
+if (( $# > 1 )); then
+  die-with-user-error "Too many arguments."
+fi
+
+"$HOME/.screen/rm-stale-session-dirs.sh"
+
+if (( $# == 1 )); then
+  if ! screen -ls "$1" &>/dev/null ; then
+    die-with-runtime-error "$(screen -r "$1")"
+  fi
+fi
+
+matched_detached_sessions=()
+if screen -ls ${1+"$1"} | grep -Fq Detached; then
+  while read -r matched_detached_session; do
+    matched_detached_sessions+=("$matched_detached_session")
+  done <<<$(screen -ls ${1+"$1"} | grep -F Detached | cut -f 2)
+fi
+
+if (( ${#matched_detached_sessions[@]} == 0 )); then
+  die-with-runtime-error "$(screen -r ${1+"$1"} || true)"
+fi
+
+if (( ${#matched_detached_sessions[@]} > 1 )); then
+  die-with-runtime-error "$(screen -r ${1+"$1"} |& sed -e 's/^Type \"screen \[-d\] -r /Type \"reattach /' || true)"
+fi
+
+session="${matched_detached_sessions[0]}"
+
+if [[ ! -S /run/screen/S-$(whoami)/$session ]]; then
+  die-with-logic-error
+fi
+
+mkdir -m 700 -p "$HOME/.screen/sessions"
+mkdir -m 700 -p "$HOME/.screen/sessions/$session"
+
+fix_script="$HOME/.screen/sessions/$session/fix-ssh-agent.sh"
+
+install -m 600 /dev/null "$fix_script"
+
+for varname in SSH_AUTH_SOCK SSH_CLIENT SSH_CONNECTION SSH_TTY; do
+  if declare -p "$varname" &>/dev/null; then
+    echo "export $varname='${!varname}'" >>"$fix_script"
+  fi
+done
+
+exec screen -r "$session"
