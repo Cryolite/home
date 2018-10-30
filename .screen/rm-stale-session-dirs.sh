@@ -8,12 +8,17 @@ if [[ ! -d $HOME/.screen/sessions ]]; then
   exit 0
 fi
 
-while read -r session; do
-  if [[ ! -d $HOME/.screen/sessions/$session ]]; then
+while IFS= read -r -d '' session_dir; do
+  session="$(basename "$session_dir")"
+  if [[ -p $("$HOME/.screen/screendir.sh")/$session ]]; then
+    # On CentOS 6.9, the entity in the socket directory corresponding to an
+    # existing session is a fifo.
     continue
   fi
-  if [[ -S /run/screen/S-$(whoami)/$session ]]; then
+  if [[ -S $("$HOME/.screen/screendir.sh")/$session ]]; then
+    # On Debian 9 (Stretch), the entity in the socket directory corresponding
+    # to an existing session is a socket.
     continue
   fi
   rm -r "$HOME/.screen/sessions/$session"
-done <<<$(cd "$HOME/.screen/sessions" && ls -1)
+done < <(find "$HOME/.screen/sessions" -mindepth 1 -maxdepth 1 -type d -print0)
