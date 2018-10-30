@@ -8,6 +8,7 @@ function print-usage ()
 {
   cat <<'EOF'
 Usage: reattach [pid[.tty.host]]
+
 Resume a detached GNU screen session, and if a connection to an SSH
 authentication agent is forwarded to the current environment, then also
 prepare `fix-ssh-agent' command, which enables further forwarding of the agent
@@ -30,34 +31,35 @@ if (( $# > 1 )); then
   die-with-user-error "Too many arguments."
 fi
 
-"$HOME/.screen/rm-stale-session-dirs.sh"
-
-if (( $# == 1 )); then
-  if ! screen -ls "$1" &>/dev/null ; then
-    die-with-runtime-error "$(screen -r "$1")"
-  fi
+if (( $# == 1 )) && [[ ! $1 =~ ^[1-9][[:digit:]]* ]]; then
+  die-with-user-error "An invalid argument \`$1'."
 fi
 
 matched_detached_sessions=()
-if screen -ls ${1+"$1"} | grep -Fq Detached; then
-  while read -r matched_detached_session; do
-    matched_detached_sessions+=("$matched_detached_session")
-  done <<<$(screen -ls ${1+"$1"} | grep -F Detached | cut -f 2)
-fi
+while IFS= read -r line; do
+  matched_detached_sessions+=("$line")
+# `screen -ls` on screen 4.0 exits with a non-zero status code.
+done < <({ screen -ls ${1+"$1"} || true; } | grep -F Detached | cut -f 2)
 
 if (( ${#matched_detached_sessions[@]} == 0 )); then
   die-with-runtime-error "$(screen -r ${1+"$1"} || true)"
 fi
 
 if (( ${#matched_detached_sessions[@]} > 1 )); then
-  die-with-runtime-error "$(screen -r ${1+"$1"} |& sed -e 's/^Type \"screen \[-d\] -r /Type \"reattach /' || true)"
+  die-with-runtime-error "$({ screen -r ${1+"$1"} || true; } |& sed -e 's/^Type \"screen \[-d\] -r /Type \"reattach /')"
 fi
 
 session="${matched_detached_sessions[0]}"
 
-if [[ ! -S /run/screen/S-$(whoami)/$session ]]; then
+# On Debian 9 (Stretch), the entity in the socket directory corresponding to
+# an existing session is a socket.
+# On CentOS 6.9, the entity in the socket directory corresponding to an
+# existing session is a fifo.
+if [[ ! -S $("$HOME/.screen/screendir.sh")/$session && ! -p $("$HOME/.screen/screendir.sh")/$session ]]; then
   die-with-logic-error
 fi
+
+"$HOME/.screen/rm-stale-session-dirs.sh"
 
 mkdir -m 700 -p "$HOME/.screen/sessions"
 mkdir -m 700 -p "$HOME/.screen/sessions/$session"

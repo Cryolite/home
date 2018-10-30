@@ -21,7 +21,7 @@ esac
 
 export EDITOR='emacs -nw'
 
-if [ -t 0 ]; then
+if [[ -t 0 ]]; then
   stty stop undef
 fi
 
