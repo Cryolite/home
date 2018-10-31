@@ -51,9 +51,9 @@ fi
 
 session="${matched_detached_sessions[0]}"
 
-# On Debian 9 (Stretch), the entity in the socket directory corresponding to
-# an existing session is a socket.
-# On CentOS 6.9, the entity in the socket directory corresponding to an
+# On Debian 9 (Stretch) and CentOS 7, the entity in the socket directory
+# corresponding to an existing session is a socket.
+# On CentOS 6, the entity in the socket directory corresponding to an
 # existing session is a fifo.
 if [[ ! -S $("$HOME/.screen/screendir.sh")/$session && ! -p $("$HOME/.screen/screendir.sh")/$session ]]; then
   die-with-logic-error
