@@ -9,11 +9,14 @@ function print-usage ()
   cat <<'EOF'
 Usage: reattach [pid[.tty.host]]
 
-Resume a detached GNU screen session, and if a connection to an SSH
-authentication agent is forwarded to the current environment, then also
-prepare `fix-ssh-agent' command, which enables further forwarding of the agent
-connection to the reattached session. `fix-ssh-agent' command should be
-executed within the session reattached by this command.
+Resume a detached GNU screen session, and prepare `fix-environment' command for
+the resumed GNU screen session. If a connection to an SSH authentication agent
+is being forwarded to the current environment, then `fix-environment' command
+enables further forwarding of the agent connection to the resumed GNU screen
+session. If the current environment has a Kerberos credentials cache, then
+`fix-environment' also caches the Kerberos credentials in the resumed GNU
+screen session. `fix-environment' command should be executed within the session
+reattached by this command.
 
   -h, --help                 Display this help and exit.
 EOF
@@ -64,11 +67,11 @@ fi
 mkdir -m 700 -p "$HOME/.screen/sessions"
 mkdir -m 700 -p "$HOME/.screen/sessions/$session"
 
-fix_script="$HOME/.screen/sessions/$session/fix-ssh-agent.sh"
+fix_script="$HOME/.screen/sessions/$session/fix-environment.sh"
 
 install -m 600 /dev/null "$fix_script"
 
-for varname in SSH_AUTH_SOCK SSH_CLIENT SSH_CONNECTION SSH_TTY; do
+for varname in SSH_AUTH_SOCK SSH_CLIENT SSH_CONNECTION SSH_TTY KRB5CCNAME; do
   if declare -p "$varname" &>/dev/null; then
     echo "export $varname='${!varname}'" >>"$fix_script"
   fi
