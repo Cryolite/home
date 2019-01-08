@@ -4,6 +4,7 @@
 
 ulimit -c unlimited
 
+unset TMOUT
 export PATH="$HOME/.local/bin${PATH:+:$PATH}"
 
 #if [ -f /etc/debian_version ] && grep -Fq 'squeeze/sid' /etc/debian_version; then
@@ -176,10 +177,10 @@ function diffyless ()
     diffy "$@" | less
 }
 
-function fix-ssh-agent ()
+function fix-environment ()
 {
     if ! declare -p STY &>/dev/null; then
-        local error_message="\`fix-ssh-agent' is called in a terminal other than GNU screen."
+        local error_message="\`fix-environment' is called in a terminal other than GNU screen."
         if [[ -t 2 ]] && type -t tput >/dev/null; then
             if (( "$(tput colors)" == 256 )); then
                 echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
@@ -192,8 +193,8 @@ function fix-ssh-agent ()
         return 1
     fi
 
-    if [[ ! -f $HOME/.screen/sessions/$STY/fix-ssh-agent.sh ]]; then
-        local error_message="\`$HOME/.screen/sessions/$STY/fix-ssh-agent.sh' does not exist. Resume this GNU screen session by \`reattach'."
+    if [[ ! -f $HOME/.screen/sessions/$STY/fix-environment.sh ]]; then
+        local error_message="\`$HOME/.screen/sessions/$STY/fix-environment.sh' does not exist. Resume this GNU screen session by \`reattach'."
         if [[ -t 2 ]] && type -t tput >/dev/null; then
             if (( "$(tput colors)" == 256 )); then
                 echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
@@ -207,8 +208,7 @@ function fix-ssh-agent ()
     fi
 
     "$HOME/.screen/rm-stale-session-dirs.sh"
-
-    . "$HOME/.screen/sessions/$STY/fix-ssh-agent.sh"
+    . "$HOME/.screen/sessions/$STY/fix-environment.sh"
 }
 
 # enable programmable completion features (you don't need to enable
