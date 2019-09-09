@@ -3,7 +3,6 @@
 # for examples
 
 ulimit -c unlimited
-
 unset TMOUT
 export PATH="$HOME/.local/bin${PATH:+:$PATH}"
 
@@ -11,8 +10,6 @@ export PATH="$HOME/.local/bin${PATH:+:$PATH}"
 #    export LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}"
 #    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 #fi
-
-export BOOST_ROOT="$HOME/local/boost/latest"
 
 # If not running interactively, don't do anything
 case $- in
@@ -34,8 +31,9 @@ HISTCONTROL=ignoreboth
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100000
+HISTFILESIZE=100000
+HISTTIMEFORMAT='%Y/%m/%d %T  '
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -46,10 +44,10 @@ shopt -s checkwinsize
 #shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+[[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
 # set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+if [[ -z ${debian_chroot:-} && -r /etc/debian_chroot ]]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
@@ -63,8 +61,8 @@ esac
 # should be on the output of commands, not on the prompt
 #force_color_prompt=yes
 
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+if [[ -n $force_color_prompt ]]; then
+    if [[ -x /usr/bin/tput ]] && tput setaf 1 >&/dev/null; then
         # We have color support; assume it's compliant with Ecma-48
         # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
         # a case would tend to support setf rather than setaf.)
@@ -75,7 +73,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
+if [[ -x /usr/bin/dircolors ]]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
@@ -98,6 +96,7 @@ alias cp='cp -iv'
 alias crontab='crontab -i'
 alias man='env LANG=C man'
 alias diffy='diff -y -W $COLUMNS'
+alias time='/usr/bin/time'
 alias emacs='emacs -nw'
 
 # Add an "alert" function for long running commands.  Use like so:
@@ -105,12 +104,13 @@ alias emacs='emacs -nw'
 function alert ()
 {
     local exval=$?
-    local command="$(history | tail -n 1 | sed -e 's/^\s*[0-9]\+\s*//;s/^[0-9]\+-[0-9]\+-[0-9]\+_[0-9]\+:[0-9]\+:[0-9]\+\\\s\+//;s/[;&|]\s*alert\s*$//')"
+    local command="$(history | tail -n 1\
+ | sed -e 's/^\s*[0-9]\+\s*//;s@^[0-9]\+/[0-9]\+/[0-9]\+\s\+[0-9]\+:[0-9]\+:[0-9]\+\s\+@@;s/[;&|]\s*alert\s*$//')"
     echo -en '\a'
-    if test $exval -eq 0; then
-        local message="alert: Command terminated normally.: $command"
-        if test -t 1 && tput setaf 1 &>/dev/null; then
-            if test "$(tput colors)" -eq 256; then
+    if (( "$exval" == 0 )); then
+        local message="alert: Command terminated normally: $command"
+        if [[ -t 1 ]] && tput setaf 1 &>/dev/null; then
+            if (( "$(tput colors)" == 256 )); then
                 echo -E "$(tput setaf 10)$message$(tput sgr0)"
             else
                 echo -E "$(tput setaf 2)$message$(tput sgr0)"
@@ -119,9 +119,9 @@ function alert ()
             echo -E "$message"
         fi
     else
-        local message="alert: Command terminated abnormally with exit code \`$exval'.: $command"
-        if test -t 1 && tput setaf 1 &>/dev/null; then
-            if test "$(tput colors)" -eq 256; then
+        local message="alert: Command terminated abnormally with exit status \`$exval': $command"
+        if [[ -t 1 ]] && tput setaf 1 &>/dev/null; then
+            if (( "$(tput colors)" == 256 )); then
                 echo -E "$(tput setaf 9)$message$(tput sgr0)"
             else
                 echo -E "$(tput setaf 1)$message$(tput sgr0)"
@@ -132,18 +132,23 @@ function alert ()
     fi
 }
 
+function time-n-alert ()
+{
+    /usr/bin/time "$@"; alert
+}
+
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-if [ -f ~/.bash_aliases ]; then
+if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
 fi
 
 function lsless ()
 {
-    if [ ! -t 1 ]; then
+    if [[ ! -t 1 ]]; then
         echo "error: not a tty" >&2
         return 1
     fi
@@ -152,7 +157,7 @@ function lsless ()
 
 function llless ()
 {
-    if [ ! -t 1 ]; then
+    if [[ ! -t 1 ]]; then
         echo "error: not a tty" >&2
         return 1
     fi
@@ -161,16 +166,40 @@ function llless ()
 
 function llaless ()
 {
-    if [ ! -t 1 ]; then
+    if [[ ! -t 1 ]]; then
         echo "error: not a tty" >&2
         return 1
     fi
     lla --color=always "$@" | less -R
 }
 
+function grepless ()
+{
+    if [[ ! -t 1 ]]; then
+        echo 'error: not a tty' >&2
+    fi
+    grep --color=always "$@" | less -R
+}
+
+function fgrepless ()
+{
+    if [[ ! -t 1 ]]; then
+        echo 'error: not a tty' >&2
+    fi
+    fgrep --color=always "$@" | less -R
+}
+
+function egrepless ()
+{
+    if [[ ! -t 1 ]]; then
+        echo 'error: not a tty' >&2
+    fi
+    egrep --color=always "$@" | less -R
+}
+
 function diffyless ()
 {
-    if [ ! -t 1 ]; then
+    if [[ ! -t 1 ]]; then
         echo "error: not a tty" >&2
         return 1
     fi
@@ -193,8 +222,9 @@ function fix-environment ()
         return 1
     fi
 
-    if [[ ! -f $HOME/.screen/sessions/$STY/fix-environment.sh ]]; then
-        local error_message="\`$HOME/.screen/sessions/$STY/fix-environment.sh' does not exist. Resume this GNU screen session by \`reattach'."
+    if [[ ! -f ~/.screen/sessions/$STY/fix-environment.sh ]]; then
+        local error_message="\`~/.screen/sessions/$STY/fix-environment.sh'\
+ does not exist. Resume this GNU screen session by \`reattach'."
         if [[ -t 2 ]] && type -t tput >/dev/null; then
             if (( "$(tput colors)" == 256 )); then
                 echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
@@ -215,51 +245,91 @@ function fix-environment ()
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-    if [ -f /usr/share/bash-completion/bash_completion ]; then
+    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
         . /usr/share/bash-completion/bash_completion
-    elif [ -f /etc/bash_completion ]; then
+    elif [[ -f /etc/bash_completion ]]; then
         . /etc/bash_completion
     fi
 fi
 
-# If this is an xterm set the title to user@host:dir
-#case "$TERM" in
-#xterm*|rxvt*)
-#    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-#    ;;
-#*)
-#    ;;
-#esac
-
-# check whether `bash-completion` includes `git-completion`.
-if type -t __git_ps1 >/dev/null; then
-    has_git_completion=yes
-elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
-    # For CentOS 7.
-    . /usr/share/git-core/contrib/completion/git-prompt.sh
-    has_git_completion=yes
-fi
+# Set up `PS1`.
+ps1='\n${debian_chroot:+($debian_chroot)}'
 
 case "$TERM" in
-    xterm*|rxvt*|screen*)
-        if [ "$color_prompt" = yes ]; then
-            if [ "$has_git_completion" = yes ]; then
-                PS1='\n${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w$(__git_ps1)\[\033[00m\]\$ '
-            else
-                PS1='\n${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
-            fi
-        else
-            if [ "$has_git_completion" = yes ]; then
-                PS1='\n${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1)\$ '
-            else
-                PS1='\n${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
-            fi
-        fi
-        ;;
-    *) ;;
+xterm*|rxvt*|screen*)
+    if [[ $color_prompt == yes ]]; then
+        ps1+='\[\033[92m\]\u@\h\[\033[00m\]:\[\033[96m\]\w\[\033[00m\]'
+    else
+        ps1+='\u@\h:\w'
+    fi
+    ;;
+*) ;;
 esac
+
 unset color_prompt force_color_prompt
-unset has_git_completion
+
+case "$TERM" in
+xterm*|rxvt*|screen*)
+    # check whether `bash-completion` includes `git-completion`.
+    if type -t __git_ps1 >/dev/null; then
+        ps1+='$(__git_ps1)'
+    elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
+        # For CentOS 7.
+        . /usr/share/git-core/contrib/completion/git-prompt.sh
+        ps1+='$(__git_ps1)'
+    fi
+esac
+
+if declare -p STY &>/dev/null; then
+    # The current interactive shell is running on a window of a `screen`
+    # session. The following configuration of prompts sets up the title
+    # (see https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
+    # for detail) and hardstatus (see https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
+    # for detail) of the window. The title and hardstatus are set to
+    # short and detailed description of the state of the shell,
+    # respectively.
+    #
+    # The following explains how it works.
+    #
+    # Immediately after reading a command but before it is actually
+    # executed, the value of `PS0` is expanded and displayed (see
+    # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-PS0
+    # and https://www.gnu.org/software/bash/manual/html_node/Interactive-Shell-Behavior.html
+    # for detail). `~/.screen/ps0-hook.py` Python script is executed at
+    # that time since `PS0` includes command substitution referring that
+    # script. It parses the command that is about to be executedand and
+    # formats both short and detailed description of the command. Then,
+    # it prints '\x1bk<title>\x1b\\' (see
+    # https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
+    # for detail) and '\x1b_<hardstatus>\x1b\\' (see
+    # https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
+    # for detail) to the stdout. These strings are not visible at all
+    # but set the title and hardstatus to <title> and <hardstatus>,
+    # respectively. Therefore, during execution of a command, the title
+    # and hardstatus are set to short and detailed description of that
+    # command, respectively.
+    #
+    # After execution of a command completes and it exits, the value of
+    # `PS1` is expanded and displayed. The value includes
+    # `\[\ekbash\e\\\]` and `\[\e_\u@\H:\w\e\\\]`. These are not visible
+    # at all but reset the title and hardstatus to `bash` and
+    # `<user>@<host>:/path/to/working/dir`, respectively. Therefore,
+    # while the shell prompt is displayed and no command is running, the
+    # title and hardstatus are set to `bash` and
+    # `<user>@<host>:/path/to/working/dir`, repectively.
+
+    PS0='\[$(~/.screen/ps0-hook.py --history-line-header\
+ "\\s*\\d+\\s+\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\s+"\
+ --ignore-wrapping-command time "$(history 1)")\]'
+
+    # See https://www.gnu.org/software/screen/manual/html_node/Dynamic-Titles.html
+    ps1+='\[\ekbash\e\\\]'
+    # See https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
+    ps1+='\[\e_\u@\H:\w\e\\\]'
+fi
+
+PS1="$ps1"'\$ '
+unset ps1
 
 # Configurations to establish TeX Live environment.
 case "$TERM" in
@@ -274,7 +344,7 @@ esac
 case "$TERM" in
     screen*) ;;
     *)
-        if [ -f /etc/redhat-release ]; then
+        if [[ -f /etc/redhat-release ]]; then
             yum check-update
         fi
         ;;
@@ -284,7 +354,7 @@ case "$TERM" in
     screen*) ;;
     *)
         screen -q -ls
-        if [ $? -ne 9 ]; then
+        if (( $? != 9 )); then
             echo -e '\e[36m'
             screen -ls
             echo -en '\e[m'

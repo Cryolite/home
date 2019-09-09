@@ -1,15 +1,15 @@
-term screen-256color
-startup_message off
+windowlist title '%{+ub}Num  Title%020=  Hardstatus%-07=  Flags%{-}'
+windowlist string '%3n  %t%020=  %h%-07=  %f'
 bell_msg "Bell in window %n^G"
 vbell on
-defscrollback 10000
 altscreen on
-
-escape ^z^z
+defscrollback 10000
 bind ^x
-
-backtick 0 1 0 "$HOME/.screen/backtick.py" "$STY" --left-padding 40 --fqdn
+escape ^z^z
 hardstatus alwayslastline "%{= bw}%02c:%02s%{-}%0`"
+startup_message off
+backtick 0 1 0 "$HOME/.screen/backtick.py" "$STY" --left-padding 40 --fqdn
+term screen-256color
 
 screen -t top 99 top -d1
 chdir

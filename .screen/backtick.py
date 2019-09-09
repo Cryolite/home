@@ -191,7 +191,7 @@ def get_memory_usage_text() -> Tuple[float, float, str]:
 
 def get_ratio_bar(total: float, value: float, max_length: int) -> str:
     length = int(min(max_length * value / total, max_length))
-    return '*' * length + ' ' * (max_length - length)
+    return '#' * length + ' ' * (max_length - length)
 
 
 def get_right_text(params: Parameters,
@@ -229,7 +229,7 @@ def get_right_text(params: Parameters,
     elif cpu_load / cpu_count >= params.cpu_yellow_threshold:
         cpu_usage_bar_text = f'\x05{{+ Yk}}{cpu_usage_bar_text}\x05{{-}}'
     else:
-        cpu_usage_bar_text = f'\x05{{+ Bk}}{cpu_usage_bar_text}\x05{{-}}'
+        cpu_usage_bar_text = f'\x05{{+ Gk}}{cpu_usage_bar_text}\x05{{-}}'
 
     memory_usage_bar_text = get_ratio_bar(total_memory, memory_usage,
                                           bar_max_length)
@@ -241,7 +241,7 @@ def get_right_text(params: Parameters,
             = f'\x05{{+ Yk}}{memory_usage_bar_text}\x05{{-}}'
     else:
         memory_usage_bar_text\
-            = f'\x05{{+ Bk}}{memory_usage_bar_text}\x05{{-}}'
+            = f'\x05{{+ Gk}}{memory_usage_bar_text}\x05{{-}}'
 
     available_columns -= (bar_max_length + 1) * 2
     right_text = f'  [{cpu_usage_text} {cpu_usage_bar_text}]'\
