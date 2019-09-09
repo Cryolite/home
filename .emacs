@@ -1,18 +1,17 @@
-;======================================================================
-; 言語・文字コード関連の設定
-;======================================================================
-(when (equal emacs-major-version 21) (require 'un-define))
-(set-language-environment "Japanese")
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-buffer-file-coding-system 'utf-8)
-(setq default-buffer-file-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(setq file-name-coding-system 'utf-8)
-;;
 ;=======================================================================
-;フォント
+; I18n
+;=======================================================================
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
+(set-file-name-coding-system 'utf-8) ; This is not actually necessary if
+                                     ; `prefer-coding-system` is set.
+(set-terminal-coding-system 'utf-8) ; Likewise.
+(set-keyboard-coding-system 'utf-8) ; Likewise.
+(setq-default buffer-file-coding-system 'utf-8)
+
+
+;=======================================================================
+; Fonts
 ;=======================================================================
 ;(cond (window-system
 ;    (set-default-font "-*-fixed-medium-r-normal--14-*-*-*-*-*-*-*")
@@ -26,9 +25,10 @@
 ;         (set-face-font 'bold-italic
 ;                        "-shinonome-gothic-bold-i-normal--14-*-*-*-*-*-*-*")
 ;       )))
-;;
+
+
 ;=======================================================================
-;フレームサイズ・位置・色など
+; Frame size, position, color, etc.
 ;=======================================================================
 ;(setq initial-frame-alist
 ;    (append (list
@@ -44,7 +44,16 @@
 ;           )
 ;        initial-frame-alist))
 ;(setq default-frame-alist initial-frame-alist)
-;;
+
+
+;=======================================================================
+; Color
+;=======================================================================
+(set-background-color "black")
+(set-foreground-color "white")
+(set-cursor-color "white")
+
+
 ;=======================================================================
 ; Misc
 ;=======================================================================
@@ -56,35 +65,57 @@
 (setq frame-title-format (concat "%b - emacs@" system-name))
 (setq make-backup-files nil)
 (setq kill-whole-line t)
-(when (boundp 'show-trailing-whitespace) (setq-default show-trailing-whitespace t))
+(setq-default show-trailing-whitespace t)
 ;(setq visible-bell t)
-;;
+
+;; Always end a file with a newline.
+;(setq require-final-newline t)
+
+
+;=======================================================================
+; Line truncation
+;=======================================================================
+(setq truncate-lines nil)
+(setq truncate-partial-width-windows t)
+;(defun toggle-truncate-lines ()
+;  (interactive)
+;  (if truncate-lines
+;      (setq truncate-lines nil)
+;    (setq truncate-lines t))
+;  (recenter))
+
+
 ;=======================================================================
 ; 履歴の保存
 ;=======================================================================
 ;(require 'session)
 ;(add-hook 'after-init-hook 'session-initialize)
-;;
+
+
 ;=======================================================================
 ; 最近使ったファイル
 ;=======================================================================
 (recentf-mode)
-;;
+
+
 ;=======================================================================
 ; リージョンに色を付ける
 ;=======================================================================
 (setq transient-mark-mode t)
-;;
+
+
 ;=======================================================================
 ; 対応する括弧を光らせる
 ;=======================================================================
 (show-paren-mode)
-;;
+
+
 ;=======================================================================
-; C-c c で compile コマンドを呼び出す 
+; C-c c で compile コマンドを呼び出す
 ;=======================================================================
 ;(define-key mode-specific-map "c" 'compile)
-;;
+
+
 ;=======================================================================
 ; スクリプトを保存する時、自動的に chmod +x を行うようにする
 ;=======================================================================
@@ -103,17 +134,24 @@
                            (/ mode 4) 73)))
                 (message (concat "Wrote " name " (+x)"))))))))
 (add-hook 'after-save-hook 'make-file-executable)
-;;
+
+
 ;=======================================================================
 ; ~/.emacs.d/auto-install/ にパスを通す
 ;=======================================================================
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install"))
-;;
+
+
 ;=======================================================================
 ; インデントポリシー
 ;=======================================================================
 (setq-default indent-tabs-mode nil)
+(electric-indent-mode -1)
 
+
+;=======================================================================
+; Keyboard shortcuts
+;=======================================================================
 ;; Set up the keyboard so the delete key on both the regular keyboard
 ;; and the keypad delete the character under the cursor and to the right
 ;; under X, instead of the default, backspace behavior.
@@ -123,7 +161,6 @@
 ;(global-set-key "\M-?" 'help-for-help)
 (global-set-key "\M-n" 'scroll-up)
 (global-set-key "\M-p" 'scroll-down)
-
 (global-set-key "\C-xn" (lambda () (interactive) (other-window 1)))
 (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))
 
@@ -156,33 +193,45 @@
 (global-set-key [f2] 'previous-error)
 (global-set-key [f3] 'next-error)
 
-(setq truncate-lines nil)
-(setq truncate-partial-width-windows nil)
-
-;(defun toggle-truncate-lines ()
-;  (interactive)
-;  (if truncate-lines
-;      (setq truncate-lines nil)
-;    (setq truncate-lines t))
-;  (recenter))
-
 (global-set-key "\C-cl" 'toggle-truncate-lines)
-
-;; always end a file with a newline
-;(setq require-final-newline t)
-
-(set-background-color "black")
-(set-foreground-color "white")
-(set-cursor-color "white")
 
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 
+
+;=======================================================================
+; Shell script mode
+;=======================================================================
+(add-hook 'sh-mode-hook
+          '(lambda ()
+             (progn
+               (electric-pair-local-mode t)
+               (electric-indent-local-mode t)
+               (setq sh-basic-offset 2
+                     sh-indentation 2
+                     sh-indent-for-case-label 0
+                     sh-indent-for-case-alt '+))))
+
+
+;=======================================================================
+; Python mode
+;=======================================================================
+(add-hook 'python-mode-hook
+          '(lambda()
+             (electric-pair-local-mode t)
+             (electric-indent-local-mode t)))
+
+
+;=======================================================================
+; C/C++ modes
+;=======================================================================
 (require 'cc-mode)
 
 (setq c-default-style "bsd")
 
 (add-hook 'c-mode-common-hook
      	  '(lambda ()
+             (electric-pair-local-mode t)
+             (electric-indent-local-mode t)
              (setq c-basic-offset 2)
              (c-toggle-hungry-state t)
              (setq indent-tabs-mode nil)
@@ -200,19 +249,35 @@
          ) auto-mode-alist))
 
 
-(add-hook 'sh-mode-hook
+;=======================================================================
+; YAML mode
+;=======================================================================
+(require 'yaml-mode)
+(add-hook 'yaml-mode-hook
           '(lambda ()
-             (progn
-               (setq sh-basic-offset 2
-                     sh-indentation 2
-                     sh-indent-for-case-label 0
-                     sh-indent-for-case-alt '+))))
+             (electric-pair-local-mode t)
+             (electric-indent-local-mode t)))
 
+
+;=======================================================================
+; CMake mode
+;=======================================================================
 (require 'cmake-mode)
+(add-hook 'cmake-mode-hook
+          '(lambda ()
+             (electric-pair-local-mode t)
+             (electric-indent-local-mode t)))
 (setq auto-mode-alist
       (append
        '(("CMakeList\\.txt\\'", cmake-mode)
          ("\\.cmake\\'", cmake-mode))
        auto-mode-alist))
 
-(require 'yaml-mode)
+
+;=======================================================================
+; Emacs Lisp mode
+;=======================================================================
+(add-hook 'emacs-lisp-mode-hook
+          '(lambda ()
+             (electric-pair-local-mode t)
+             (electric-indent-local-mode t)))
