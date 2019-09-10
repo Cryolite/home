@@ -75,8 +75,11 @@
 ;=======================================================================
 ; Line truncation
 ;=======================================================================
-(setq truncate-lines nil)
-(setq truncate-partial-width-windows t)
+(setq truncate-lines nil)               ; Do not wrap lines at the right
+                                        ; edge.
+(setq truncate-partial-width-windows t) ; Do not wrap lines at the right
+                                        ; edge of a horizontally split
+                                        ; window.
 ;(defun toggle-truncate-lines ()
 ;  (interactive)
 ;  (if truncate-lines
@@ -86,38 +89,38 @@
 
 
 ;=======================================================================
-; 履歴の保存
+; Saving the history
 ;=======================================================================
 ;(require 'session)
 ;(add-hook 'after-init-hook 'session-initialize)
 
 
 ;=======================================================================
-; 最近使ったファイル
+; Recently used files
 ;=======================================================================
 (recentf-mode)
 
 
 ;=======================================================================
-; リージョンに色を付ける
+; Color regions
 ;=======================================================================
 (setq transient-mark-mode t)
 
 
 ;=======================================================================
-; 対応する括弧を光らせる
+; Indicate the corresponding parenthesis
 ;=======================================================================
 (show-paren-mode)
 
 
 ;=======================================================================
-; C-c c で compile コマンドを呼び出す
+; `C-c c` to invoke `compile` command
 ;=======================================================================
 ;(define-key mode-specific-map "c" 'compile)
 
 
 ;=======================================================================
-; スクリプトを保存する時、自動的に chmod +x を行うようにする
+; Automatically make script files executable
 ;=======================================================================
 (defun make-file-executable ()
   "Make the file of this buffer executable, when it is a script source."
@@ -137,13 +140,13 @@
 
 
 ;=======================================================================
-; ~/.emacs.d/auto-install/ にパスを通す
+; Add `~/.emacs.d/auto-install/` to the load path
 ;=======================================================================
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install"))
 
 
 ;=======================================================================
-; インデントポリシー
+; Indentation policy
 ;=======================================================================
 (setq-default indent-tabs-mode nil)
 (electric-indent-mode -1)
@@ -198,14 +201,27 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 
 
+(defun enable-electric-local-modes ()
+  ; `electric-pair-local-mode` has been introduced since Emacs 25.1.
+  (if (or (>= emacs-major-version 26)
+          (and (= emacs-major-version 25)
+               (>= emacs-minor-version 1)))
+      (electric-pair-local-mode t)
+    (electric-pair-mode t))
+  ; `electric-indent-local-mode` has been introduced since Emacs 24.4.
+  (if (or (>= emacs-major-version 25)
+          (and (= emacs-major-version 24)
+               (>= emacs-minor-version 4)))
+      (electric-indent-local-mode t)
+    (electric-indent-mode t)))
+
 ;=======================================================================
 ; Shell script mode
 ;=======================================================================
 (add-hook 'sh-mode-hook
           '(lambda ()
              (progn
-               (electric-pair-local-mode t)
-               (electric-indent-local-mode t)
+               (enable-electric-local-modes)
                (setq sh-basic-offset 2
                      sh-indentation 2
                      sh-indent-for-case-label 0
@@ -217,8 +233,7 @@
 ;=======================================================================
 (add-hook 'python-mode-hook
           '(lambda()
-             (electric-pair-local-mode t)
-             (electric-indent-local-mode t)))
+             (enable-electric-local-modes)))
 
 
 ;=======================================================================
@@ -230,8 +245,7 @@
 
 (add-hook 'c-mode-common-hook
      	  '(lambda ()
-             (electric-pair-local-mode t)
-             (electric-indent-local-mode t)
+             (enable-electric-local-modes)
              (setq c-basic-offset 2)
              (c-toggle-hungry-state t)
              (setq indent-tabs-mode nil)
@@ -255,8 +269,7 @@
 (require 'yaml-mode)
 (add-hook 'yaml-mode-hook
           '(lambda ()
-             (electric-pair-local-mode t)
-             (electric-indent-local-mode t)))
+             (enable-electric-local-modes)))
 
 
 ;=======================================================================
@@ -265,8 +278,7 @@
 (require 'cmake-mode)
 (add-hook 'cmake-mode-hook
           '(lambda ()
-             (electric-pair-local-mode t)
-             (electric-indent-local-mode t)))
+             (enable-electric-local-modes)))
 (setq auto-mode-alist
       (append
        '(("CMakeList\\.txt\\'", cmake-mode)
@@ -279,5 +291,4 @@
 ;=======================================================================
 (add-hook 'emacs-lisp-mode-hook
           '(lambda ()
-             (electric-pair-local-mode t)
-             (electric-indent-local-mode t)))
+             (enable-electric-local-modes)))
