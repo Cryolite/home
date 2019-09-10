@@ -6,70 +6,42 @@ import os.path
 from argparse import (ArgumentParser,)
 import shlex
 from typing import (Optional, List)
-from sys import (argv, stderr, exit)
+from sys import (stderr, exit)
 import inspect
 
 
-class Aborter(object):
-    def __init__(self, is_prompt: bool):
-        self._is_prompt = is_prompt
-
-    def __call__(self, message: str) -> None:
-        frame = inspect.currentframe()
-        if frame is None:
-            if self._is_prompt:
-                print(f'\\[\x1b[91m\\]ERROR: {message}\\[\x1b[m\\]')
-            else:
-                print(f'\x1b[91mERROR: {message}\x1b[m', file=stderr)
-            exit(1)
-
-        frame = frame.f_back
-        if frame is None:
-            if self._is_prompt:
-                print('\\[\x1b[91m\\]ERROR: Could not get the next outer frame'
-                      ' object.\\[\x1b[m\\]')
-            else:
-                print('\x1b[91mERROR: Could not get the next outer frame'
-                      ' object.\x1b[m', file=stderr)
-            exit(1)
-
-        code = frame.f_code
-        if code is None:
-            if self._is_prompt:
-                print('\\[\x1b[91m\\]ERROR: Could not get the code object from'
-                      ' a frame object.\\[\x1b[m\\]')
-            else:
-                print('\x1b[91mERROR: Could not get the code object from a'
-                      ' frame object.\x1b[m', file=stderr)
-            exit(1)
-
-        filename = code.co_filename
-        if filename is None:
-            if self._is_prompt:
-                print('\\[\x1b[91m\\]ERROR: Could not get the file name from a'
-                      ' code object.\\[\x1b[m\\]')
-            else:
-                print('\x1b[91mERROR: Could not get the file name from a code'
-                      ' object.\x1b[m', file=stderr)
-            exit(1)
-
-        line_number = frame.f_lineno
-        if line_number is None:
-            if self._is_prompt:
-                print('\\[\x1b[91m\\]ERROR: Could not get the line number from'
-                      ' a frame object.\\[\x1b[m\\]')
-            else:
-                print('\x1b[91mERROR: Could not get the line number from a'
-                      ' frame object.\x1b[m', file=stderr)
-            exit(1)
-
-        if self._is_prompt:
-            print(f'\\[\x1b[91m\\]{filename}:{line_number}:'
-                  f' {message}\\[\x1b[m\\]')
-        else:
-            print(f'\x1b[91m{filename}:{line_number}: {message}\x1b[m',
-                  file=stderr)
+def abort(message: str) -> None:
+    frame = inspect.currentframe()
+    if frame is None:
+        print(f'\x1b[91mERROR: {message}\x1b[m', file=stderr)
         exit(1)
+
+    frame = frame.f_back
+    if frame is None:
+        print('\x1b[91mERROR: Could not get the next outer frame'
+              ' object.\x1b[m', file=stderr)
+        exit(1)
+
+    code = frame.f_code
+    if code is None:
+        print('\x1b[91mERROR: Could not get the code object from a frame'
+              ' object.\x1b[m', file=stderr)
+        exit(1)
+
+    filename = code.co_filename
+    if filename is None:
+        print('\x1b[91mERROR: Could not get the file name from a code'
+              ' object.\x1b[m', file=stderr)
+        exit(1)
+
+    line_number = frame.f_lineno
+    if line_number is None:
+        print('\x1b[91mERROR: Could not get the line number from a frame'
+              ' object.\x1b[m', file=stderr)
+        exit(1)
+
+    print(f'\x1b[91m{filename}:{line_number}: {message}\x1b[m', file=stderr)
+    exit(1)
 
 
 class Command(object):
@@ -261,12 +233,6 @@ class Parameters(object):
             " commands as wrapping commands, the name of not the wrapping"
             " command but the wrapped command is used as a short description"
             " printed to the window title.")
-        parser.add_argument(
-            '--prompt', action='store_true', help="Indicate that the standard"
-            " output of this script is used as a part of Bash prompt, i.e., "
-            "`PSn' (n = 0, 1, 2, 3, 4). If specified, invisible escape"
-            " sequences in the standard output are enclosed between `\[' and"
-            " `\]'.")
         params = parser.parse_args()
 
         history_file_path = Path(params.HISTORY_FILE)
@@ -281,8 +247,6 @@ class Parameters(object):
             = re.compile(f'^{params.history_line_header}')
 
         self._wrapping_commands = set(params.wrapping_command)
-
-        self._is_prompt = params.prompt
 
         self._history = History(history_file_path, history_line_header_pattern)
 
@@ -299,10 +263,6 @@ class Parameters(object):
     @property
     def wrapping_commands(self) -> List[str]:
         return self._wrapping_commands
-
-    @property
-    def is_prompt(self) -> bool:
-        return self._is_prompt
 
 
 def strip_wrapping_commands(params: Parameters, words: List[str]) -> Command:
@@ -359,10 +319,7 @@ def update_window_title(params: Parameters) -> None:
         return
 
     window_title = os.path.basename(stripped_foreground_command.words[0])
-    if params.is_prompt:
-        print(f'\\[\x1bk{window_title}\x1b\\\\]', end='')
-    else:
-        print(f'\x1bk{window_title}\x1b\\', end='')
+    print(f'\x1bk{window_title}\x1b\\', end='')
 
 
 def update_window_hardstatus(params: Parameters) -> None:
@@ -371,18 +328,14 @@ def update_window_hardstatus(params: Parameters) -> None:
         return
 
     window_hardstatus = str(foreground_command)
-    if params.is_prompt:
-        print(f'\\[\x1b_{window_hardstatus}\x1b\\\\]', end='')
-    else:
-        print(f'\x1b_{window_hardstatus}\x1b\\', end='')
+    print(f'\x1b_{window_hardstatus}\x1b\\', end='')
 
 
 if __name__ == '__main__':
-    aborter = Aborter('--prompt' in argv)
     try:
         params = Parameters()
         update_window_title(params)
         update_window_hardstatus(params)
         exit(0)
     except Exception as e:
-        aborter(str(e))
+        abort(str(e))

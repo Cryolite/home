@@ -330,9 +330,9 @@ if declare -p STY &>/dev/null; then
  --history-line-header "\s*\d+\s+\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\s+"\
  --wrapping-command time <(history 1) <(jobs)' DEBUG
     else
-        PS0='$(~/.screen/ps0-hook.py\
- --history-line-header "\s*\d+\s+\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\s+"\
- --wrapping-command time --prompt <(history 1) <(jobs))'
+        PS0='\[$(~/.screen/ps0-hook.py\
+ --history-line-header "\\s*\\d+\\s+\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\s+"\
+ --wrapping-command time <(history 1) <(jobs))\]'
     fi
 
     # See https://www.gnu.org/software/screen/manual/html_node/Dynamic-Titles.html
