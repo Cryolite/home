@@ -281,46 +281,59 @@ xterm*|rxvt*|screen*)
 esac
 
 if declare -p STY &>/dev/null; then
-    # The current interactive shell is running on a window of a `screen`
-    # session. The following configuration of prompts sets up the title
-    # (see https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
-    # for detail) and hardstatus (see https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
+    # The current interactive shell is running on a window of a GNU
+    # `screen` session. The following configuration of prompts (and
+    # `DEBUG` trap in older Bash below 4.4) sets up the title (see
+    # https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
+    # for detail) and the hardstatus (see
+    # https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
     # for detail) of the window. The title and hardstatus are set to
-    # short and detailed description of the state of the shell,
+    # short and detailed descriptions of the state of the shell,
     # respectively.
     #
     # The following explains how it works.
     #
-    # Immediately after reading a command but before it is actually
-    # executed, the value of `PS0` is expanded and displayed (see
+    # Immediately after reading a command line but before it is actually
+    # executed, `~/.screen/ps0-hook.py` is executed. In older Bash below
+    # 4.4, this script is executed by `DEBUG` trap (See
+    # https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-trap
+    # for detail). In Bash 4.4 or later, it is executed by a command
+    # substitution in `PS0` environment variable (see
     # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-PS0
     # and https://www.gnu.org/software/bash/manual/html_node/Interactive-Shell-Behavior.html
-    # for detail). `~/.screen/ps0-hook.py` Python script is executed at
-    # that time since `PS0` includes command substitution referring that
-    # script. It parses the command that is about to be executedand and
-    # formats both short and detailed description of the command. Then,
-    # it prints '\x1bk<title>\x1b\\' (see
+    # for detail). This script parses the contents of the files
+    # `<(history 1)` and `<(jobs)`. Then, it sets the window title to a
+    # short description of the job that is about to be executed by a
+    # command line and the window hardstatus to a detailed description.
+    # This is done by printing the escape sequences
+    # `<ESC>k<window title><ESC>\` (see
     # https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
-    # for detail) and '\x1b_<hardstatus>\x1b\\' (see
+    # for detail) and `<ESC>_<window hardstatus><ESC>\` (see
     # https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
-    # for detail) to the stdout. These strings are not visible at all
-    # but set the title and hardstatus to <title> and <hardstatus>,
-    # respectively. Therefore, during execution of a command, the title
-    # and hardstatus are set to short and detailed description of that
-    # command, respectively.
+    # for detail) to the standard output, i.e., the GNU screen's tty.
+    # These sequences are not visible at all. Therefore, it never
+    # disturb the console display.
     #
     # After execution of a command completes and it exits, the value of
     # `PS1` is expanded and displayed. The value includes
-    # `\[\ekbash\e\\\]` and `\[\e_\u@\H:\w\e\\\]`. These are not visible
-    # at all but reset the title and hardstatus to `bash` and
-    # `<user>@<host>:/path/to/working/dir`, respectively. Therefore,
-    # while the shell prompt is displayed and no command is running, the
-    # title and hardstatus are set to `bash` and
-    # `<user>@<host>:/path/to/working/dir`, repectively.
+    # `\[<ESC>kbash<ESC>\\\]` and `\[<ESC>_\u@\H:\w<ESC>\\\]` (see
+    # https://www.gnu.org/software/bash/manual/html_node/Controlling-the-Prompt.html
+    # for detail). These are not visible at all but reset the title and
+    # hardstatus to `bash` and `<user>@<host>:/path/to/working/dir`,
+    # respectively. Therefore, while the shell prompt is displayed and
+    # no command is running, the title and hardstatus are set to `bash`
+    # and `<user>@<host>:/path/to/working/dir`, repectively.
 
-    PS0='\[$(~/.screen/ps0-hook.py --history-line-header\
- "\\s*\\d+\\s+\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\s+"\
- --ignore-wrapping-command time "$(history 1)")\]'
+    if (( ${BASH_VERSINFO[0]} <= 3 || ${BASH_VERSINFO[0]} == 4 && ${BASH_VERSINFO[1]} < 4 )); then
+        # `PS0` is available only in Bash 4.4 and later. Fall back to `DEBUG` trap.
+        trap '~/.screen/ps0-hook.py\
+ --history-line-header "\s*\d+\s+\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\s+"\
+ --wrapping-command time <(history 1) <(jobs)' DEBUG
+    else
+        PS0='$(~/.screen/ps0-hook.py\
+ --history-line-header "\s*\d+\s+\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\s+"\
+ --wrapping-command time --prompt <(history 1) <(jobs))'
+    fi
 
     # See https://www.gnu.org/software/screen/manual/html_node/Dynamic-Titles.html
     ps1+='\[\ekbash\e\\\]'
