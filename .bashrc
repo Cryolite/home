@@ -2,6 +2,7 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+unset LANG
 ulimit -c unlimited
 unset TMOUT
 export PATH="$HOME/.local/bin${PATH:+:$PATH}"
