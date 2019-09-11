@@ -17,6 +17,16 @@ case $- in
       *) return;;
 esac
 
+# Check whether the value of `TERM` environment variable is valid by
+# finding the corresponding termcap entry.
+if [[ -n "$TERM" && ! -f "/usr/share/terminfo/${TERM:0:1}/$TERM" ]]; then
+    echo -e "\e[91m${TERM}: Could not find the corresponding termcap\
+ entry.\e[m"
+fi
+
+# Text handled on the console is assumed to be encoded in UTF-8.
+# Therefore, check if the encoding specified in the value of `LC_CTYPE`
+# is UTF-8.
 if ! locale | grep -Eq '^LC_CTYPE=.*\.(UTF-8|utf-8|UTF8|utf8)'; then
     echo -e "\e[91m\`LC_CTYPE' should be set to \`*.UTF-8' in order to\
  properly handle non-ascii characters.\e[m"
