@@ -2,7 +2,6 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-unset LANG
 ulimit -c unlimited
 unset TMOUT
 export PATH="$HOME/.local/bin${PATH:+:$PATH}"
@@ -17,6 +16,11 @@ case $- in
     *i*) ;;
       *) return;;
 esac
+
+if ! locale | grep -Eq '^LC_CTYPE=.*\.(UTF-8|utf-8|UTF8|utf8)'; then
+    echo -e "\e[91m\`LC_CTYPE' should be set to \`*.UTF-8' in order to\
+ properly handle non-ascii characters.\e[m"
+fi
 
 export EDITOR='emacs -nw'
 
@@ -95,9 +99,9 @@ alias rm='rm -iv'
 alias mv='mv -iv'
 alias cp='cp -iv'
 alias crontab='crontab -i'
-alias man='env LANG=C man'
 alias diffy='diff -y -W $COLUMNS'
 alias time='/usr/bin/time'
+alias screen='screen -U'
 alias emacs='emacs -nw'
 
 # Add an "alert" function for long running commands.  Use like so:
@@ -257,7 +261,7 @@ fi
 ps1='\n${debian_chroot:+($debian_chroot)}'
 
 case "$TERM" in
-xterm*|rxvt*|screen*)
+xterm*|putty*|rxvt*|screen*)
     if [[ $color_prompt == yes ]]; then
         ps1+='\[\033[92m\]\u@\h\[\033[00m\]:\[\033[96m\]\w\[\033[00m\]'
     else
@@ -270,7 +274,7 @@ esac
 unset color_prompt force_color_prompt
 
 case "$TERM" in
-xterm*|rxvt*|screen*)
+xterm*|putty*|rxvt*|screen*)
     # check whether `bash-completion` includes `git-completion`.
     if type -t __git_ps1 >/dev/null; then
         ps1+='$(__git_ps1)'
@@ -326,14 +330,17 @@ if declare -p STY &>/dev/null; then
     # and `<user>@<host>:/path/to/working/dir`, repectively.
 
     if (( ${BASH_VERSINFO[0]} <= 3 || ${BASH_VERSINFO[0]} == 4 && ${BASH_VERSINFO[1]} < 4 )); then
-        # `PS0` is available only in Bash 4.4 and later. Fall back to `DEBUG` trap.
+        # `PS0` is available only in Bash 4.4 and later. Fall back to
+        # `DEBUG` trap.
+        # `<(history 1)` and `<(jobs)` cannot be used because it breaks
+        # pipes due to a bug in Bash 4.2.
         trap '~/.screen/ps0-hook.py\
  --history-line-header "\s*\d+\s+\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\s+"\
- --wrapping-command time <(history 1) <(jobs)' DEBUG
+ --wrapping-command time "$(history 1)" "$(jobs)"' DEBUG
     else
         PS0='\[$(~/.screen/ps0-hook.py\
  --history-line-header "\\s*\\d+\\s+\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}\\s+"\
- --wrapping-command time <(history 1) <(jobs))\]'
+ --wrapping-command time "$(history 1)" "$(jobs)")\]'
     fi
 
     # See https://www.gnu.org/software/screen/manual/html_node/Dynamic-Titles.html
@@ -369,7 +376,7 @@ case "$TERM" in
     *)
         screen -q -ls
         if (( $? != 9 )); then
-            echo -e '\e[36m'
+            echo -e '\e[96m'
             screen -ls
             echo -en '\e[m'
         fi
