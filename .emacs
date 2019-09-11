@@ -1,13 +1,24 @@
 ;=======================================================================
 ; I18n
 ;=======================================================================
+
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/Language-Environments.html
 (set-language-environment "Japanese")
+
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/Recognize-Coding.html
 (prefer-coding-system 'utf-8)
-(set-file-name-coding-system 'utf-8) ; This is not actually necessary if
-                                     ; `prefer-coding-system` is set.
-(set-terminal-coding-system 'utf-8) ; Likewise.
-(set-keyboard-coding-system 'utf-8) ; Likewise.
+
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/Text-Coding.html
 (setq-default buffer-file-coding-system 'utf-8)
+
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Name-Coding.html
+; This is not actually necessary if `prefer-coding-system` is set.
+(set-file-name-coding-system 'utf-8)
+
+; https://www.gnu.org/software/emacs/manual/html_node/emacs/Terminal-Coding.html
+; This is not actually necessary if `prefer-coding-system` is set.
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
 
 
 ;=======================================================================
