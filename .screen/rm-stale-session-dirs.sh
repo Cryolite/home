@@ -11,7 +11,7 @@ fi
 while IFS= read -r -d '' session_dir; do
   session="$(basename "$session_dir")"
   if [[ -p $("$HOME/.screen/screendir.sh")/$session ]]; then
-    # On CentOS 6, the entity in the socket directory corresponding to an
+    # On CentOS 6.9, the entity in the socket directory corresponding to an
     # existing session is a fifo.
     continue
   fi
