@@ -3,6 +3,9 @@ windowlist string '%3n  %t%020=  %h%-07=  %f'
 bell_msg "Bell in window %n^G"
 vbell on
 altscreen on
+defencoding UTF-8
+defutf8 on
+cjkwidth on
 defscrollback 10000
 bind ^x
 escape ^z^z

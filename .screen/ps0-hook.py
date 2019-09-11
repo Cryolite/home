@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import re
-from pathlib import Path
 import os.path
 from argparse import (ArgumentParser,)
 import shlex
@@ -87,18 +86,15 @@ class Command(object):
 
 
 class History(object):
-    def __init__(self, history_file_path: Path, history_line_header_pattern):
+    def __init__(self, history: str, history_line_header_pattern):
         self._commands = []
-        with open(history_file_path) as history_file:
-            for i, line in enumerate(history_file):
-                line_number = i + 1
-                line = line.rstrip('\n')
-                line = re.sub(history_line_header_pattern, '', line)
-                if line == '':
-                    raise RuntimeError(f'{history_file_path}:{line_number}:'
-                                       ' An empty line in the history file.')
-                command = Command(line)
-                self._commands.append(command)
+        for i, line in enumerate(history.splitlines()):
+            line_number = i + 1
+            line = re.sub(history_line_header_pattern, '', line)
+            if line == '':
+                raise RuntimeError('An empty line in the history.')
+            command = Command(line)
+            self._commands.append(command)
 
     @property
     def is_empty(self) -> bool:
@@ -146,17 +142,14 @@ class Job(object):
 
 
 class JobTable(object):
-    def __init__(self, jobs_file_path: Path):
+    def __init__(self, jobs: str):
         self._jobs = []
-        with open(jobs_file_path) as jobs_file:
-            for i, jobs_line in enumerate(jobs_file):
-                line_number = i + 1
-                jobs_line = jobs_line.rstrip('\n')
-                try:
-                    job = Job(jobs_line)
-                except Exception as e:
-                    raise RuntimeError(f'{jobs_file_path}:{line_number}: {e}')
-                self._jobs.append(job)
+        for i, jobs_line in enumerate(jobs.splitlines()):
+            line_number = i + 1
+            if jobs_line == '':
+                raise RuntimeError("An empty line in the `jobs' output.")
+            job = Job(jobs_line)
+            self._jobs.append(job)
 
     def find(self, job_spec: str) -> Optional[Job]:
         if job_spec in ('%%', '%+', '%'):
@@ -218,11 +211,11 @@ class Parameters(object):
             " immediately after entering a command line, it should be"
             " associated with `DEBUG' trap or `PS0' environment"
             " variable.")
-        parser.add_argument('HISTORY_FILE', help="Must be `<(history 1)'.")
-        parser.add_argument('JOBS_FILE', help="Must be `<(jobs)'.")
+        parser.add_argument('HISTORY', help="Must be `$(history 1)'.")
+        parser.add_argument('JOBS', help="Must be `$(jobs)'.")
         parser.add_argument('--history-line-header', metavar='PATTERN',
                             help="A Python regular expression that matches the"
-                            " header of each line in `HISTORY_FILE'.")
+                            " header of each line in `HISTORY'.")
         parser.add_argument(
             '--wrapping-command', action='append', default=[],
             metavar='COMMAND', help="A command that is supposed as a"
@@ -235,22 +228,14 @@ class Parameters(object):
             " printed to the window title.")
         params = parser.parse_args()
 
-        history_file_path = Path(params.HISTORY_FILE)
-        if not history_file_path.exists():
-            raise RuntimeError(f'{history_file_path}: File does not exist.')
-
-        jobs_file_path = Path(params.JOBS_FILE)
-        if not jobs_file_path.exists():
-            raise RuntimeError(f'{jobs_file_path}: File does not exist.')
-
         history_line_header_pattern\
             = re.compile(f'^{params.history_line_header}')
 
         self._wrapping_commands = set(params.wrapping_command)
 
-        self._history = History(history_file_path, history_line_header_pattern)
+        self._history = History(params.HISTORY, history_line_header_pattern)
 
-        self._job_table = JobTable(jobs_file_path)
+        self._job_table = JobTable(params.JOBS)
 
     @property
     def history(self) -> History:
