@@ -32,15 +32,15 @@
 ;=======================================================================
 ;(setq initial-frame-alist
 ;    (append (list
-;           '(foreground-color . "white")        ;; 文字色
-;           '(background-color . "#333366")        ;; 背景色
+;           '(foreground-color . "white")
+;           '(background-color . "#333366")
 ;           '(border-color . "black")
 ;           '(mouse-color . "white")
 ;           '(cursor-color . "white")
-;           '(width . 90)                ;; フレームの幅
-;           '(height . 49)                ;; フレームの高さ
-;           '(top . 0)                    ;; Y 表示位置
-;           '(left . 340)                ;; X 表示位置
+;           '(width . 90)
+;           '(height . 49)
+;           '(top . 0)
+;           '(left . 340)
 ;           )
 ;        initial-frame-alist))
 ;(setq default-frame-alist initial-frame-alist)
@@ -58,15 +58,15 @@
 ; Misc
 ;=======================================================================
 (global-font-lock-mode t)
-(setq line-number-mode t)
-(setq column-number-mode t)
+(line-number-mode t)
+(column-number-mode t)
 (auto-compression-mode t)
 ;(global-set-key "\C-z" 'undo)
 (setq frame-title-format (concat "%b - emacs@" system-name))
 (setq make-backup-files nil)
 (setq kill-whole-line t)
 (setq-default show-trailing-whitespace t)
-;(setq visible-bell t)
+(setq visible-bell t)
 
 ;; Always end a file with a newline.
 ;(setq require-final-newline t)
@@ -75,11 +75,13 @@
 ;=======================================================================
 ; Line truncation
 ;=======================================================================
-(setq truncate-lines nil)               ; Do not wrap lines at the right
-                                        ; edge.
-(setq truncate-partial-width-windows t) ; Do not wrap lines at the right
-                                        ; edge of a horizontally split
-                                        ; window.
+
+; Do not wrap lines at the right edge.
+(setq-default truncate-lines t)
+
+; Do not wrap lines at the right edge of a horizontally split window.
+(setq-default truncate-partial-width-windows t)
+
 ;(defun toggle-truncate-lines ()
 ;  (interactive)
 ;  (if truncate-lines
@@ -98,19 +100,19 @@
 ;=======================================================================
 ; Recently used files
 ;=======================================================================
-(recentf-mode)
+(recentf-mode t)
 
 
 ;=======================================================================
 ; Color regions
 ;=======================================================================
-(setq transient-mark-mode t)
+(transient-mark-mode t)
 
 
 ;=======================================================================
 ; Indicate the corresponding parenthesis
 ;=======================================================================
-(show-paren-mode)
+(show-paren-mode t)
 
 
 ;=======================================================================
@@ -143,6 +145,7 @@
 ; Add `~/.emacs.d/auto-install/` to the load path
 ;=======================================================================
 (add-to-list 'load-path (expand-file-name "~/.emacs.d/auto-install"))
+(add-to-list 'load-path "~/.emacs.d/lisp/")
 
 
 ;=======================================================================
@@ -197,8 +200,6 @@
 (global-set-key [f3] 'next-error)
 
 (global-set-key "\C-cl" 'toggle-truncate-lines)
-
-(add-to-list 'load-path "~/.emacs.d/lisp/")
 
 
 (defun enable-electric-local-modes ()
