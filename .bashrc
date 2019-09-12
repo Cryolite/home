@@ -68,7 +68,7 @@ fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color|*-256color|screen*) color_prompt=yes;;
+*-256color) color_prompt=yes;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -267,7 +267,29 @@ if ! shopt -oq posix; then
     fi
 fi
 
-# Set up `PS1`.
+
+#=======================================================================
+# Prepare `TERM` environment variable for GNU Screen
+#=======================================================================
+if [[ -f "/usr/share/terminfo/s/screen.$TERM" ]]; then
+    export SCREEN_TERM="screen.$TERM"
+else
+    case "$TERM" in
+    screen*)
+        ;;
+    *-256color)
+        export SCREEN_TERM=screen-256color
+        ;;
+    *)
+        export SCREEN_TERM=screen
+        ;;
+    esac
+fi
+
+
+#=======================================================================
+# Set up `PS1` environment variable
+#=======================================================================
 ps1='\n${debian_chroot:+($debian_chroot)}'
 
 case "$TERM" in

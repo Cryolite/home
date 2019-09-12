@@ -5,14 +5,23 @@ vbell on
 altscreen on
 defencoding UTF-8
 defutf8 on
-cjkwidth off
+
+# This must match "Treat CJK ambiguous character as wide" checkbox in
+# PuTTY configuration. Both `on` and `off` have pros and cons:
+#
+#   * If set to `on`, output of some programs, including
+#     `dpkg-reconfigure`, is disturbed.
+#   * If set to `off`, display of Japanese text including some symbols
+#     is disturbed.
+cjkwidth on
+
 defscrollback 10000
 bind ^x
 escape ^z^z
 hardstatus alwayslastline "%{= bw}%02c:%02s%{-}%0`"
 startup_message off
 backtick 0 1 0 "$HOME/.screen/backtick.py" "$STY" --left-padding 40 --fqdn
-term screen.putty-256color
+term "$SCREEN_TERM"
 
 screen -t top 99 top -d1
 chdir
