@@ -2,14 +2,29 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
-ulimit -c unlimited
+
+
+########################################################################
+#                                                                      #
+# Common configuration for both interactive and non-interactive shells #
+#                                                                      #
+########################################################################
+
+# Prohibit core dump files to be created.
+ulimit -c 0
+
+# Disable timeout.
 unset TMOUT
-export PATH="$HOME/.local/bin${PATH:+:$PATH}"
+
+# Add `~/.local/bin` to `PATH` environment variable.
+export PATH=$HOME/.local/bin${PATH:+:$PATH}
 
 #if [ -f /etc/debian_version ] && grep -Fq 'squeeze/sid' /etc/debian_version; then
 #    export LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}"
 #    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 #fi
+
+
 
 # If not running interactively, don't do anything
 case $- in
@@ -17,26 +32,174 @@ case $- in
       *) return;;
 esac
 
-# Check whether the value of `TERM` environment variable is valid by
-# finding the corresponding termcap entry.
-if [[ -n "$TERM" && ! -f "/usr/share/terminfo/${TERM:0:1}/$TERM" ]]; then
-    echo -e "\e[91m${TERM}: Could not find the corresponding termcap\
- entry.\e[m"
+
+
+########################################################################
+#                                                                      #
+# Terminal                                                             #
+#                                                                      #
+########################################################################
+
+# Validate `TERM` environment variable, and change its value to a
+# fallback one if necessary and possible.
+if declare -p TERM &>/dev/null; then
+    # Check whether the value of `TERM` environment variable is valid by
+    # finding a matching terminfo entry.
+    if ! infocmp &>/dev/null; then
+        declare -a fallback_terms
+        case "$TERM" in
+        xterm-direct)
+            fallback_terms+=(xterm-direct xterm-256color xterm)
+            ;;
+        xterm-256color)
+            fallback_terms+=(xterm-256color xterm)
+            ;;
+        xterm-*|xterm)
+            fallback_terms+=(xterm)
+            ;;
+        putty-256color)
+            fallback_terms+=(putty-256color xterm-256color putty xterm)
+            ;;
+        putty-*|putty)
+            fallback_terms+=(putty xterm)
+            ;;
+        mintty-direct)
+            fallback_terms+=(mintty-direct xterm-direct mintty xterm-256color xterm)
+            ;;
+        mintty-*|mintty)
+            fallback_terms+=(mintty xterm-256color xterm)
+            ;;
+        screen.xterm-256color)
+            fallback_terms+=(screen.xterm-256color screen-256color screen)
+            ;;
+        screen.xterm-*)
+            fallback_terms+=(screen)
+            ;;
+        screen.putty-256color)
+            fallback_terms+=(screen.putty-256color screen.xterm-256color screen-256color screen.putty screen)
+            ;;
+        screen.putty-*|screen.putty)
+            fallback_terms+=(screen.putty screen)
+            ;;
+        screen-256color)
+            fallback_terms+=(screen-256color screen)
+            ;;
+        screen-*|screen)
+            fallback_terms+=(screen)
+            ;;
+        *)
+            ;;
+        esac
+
+        for t in "${fallback_terms[@]}"; do
+            if infocmp "$t" &>/dev/null; then
+                fallback_term=$t
+                break
+            fi
+        done
+        unset t
+        unset fallback_terms
+        if declare -p fallback_term &>/dev/null; then
+            echo -E "WARNING: TERM=${TERM}: Could not find any matching\
+ terminfo entry on this machine. Therefore, fall back to\
+ \`$fallback_term'." >&2
+            export TERM=$fallback_term
+            unset fallback_term
+        else
+            echo -E "ERROR: TERM=${TERM}: Could not find neither\
+ matching nor fallback terminfo entry on this machine." >&2
+            return 1
+        fi
+    fi
+fi
+
+
+function _show_error_message ()
+{
+    if [[ -t 2 ]]; then
+        if (( "$(tput colors)" == 16777216 )); then
+            echo -E "$(tput setaf 0xFF0000)$1$(tput sgr0)" >&2
+        elif (( "$(tput colors)" == 256 || "$(tput colors)" == 16 )); then
+            echo -E "$(tput setaf 9)$1$(tput sgr0)" >&2
+        elif (( "$(tput colors)" == 8 )); then
+            echo -E "$(tput setaf 1)$1$(tput sgr0)" >&2
+        else
+            echo -E "$1" >&2
+        fi
+    else
+        echo -E "$1" >&2
+    fi
+}
+
+
+#=======================================================================
+# Prepare `TERM` environment variable for GNU Screen
+#=======================================================================
+if declare -p SCREEN_TERM &>/dev/null; then
+    :
+elif infocmp "screen.$TERM" &>/dev/null; then
+    export SCREEN_TERM="screen.$TERM"
+else
+    declare -a fallback_screen_terms
+    case "$TERM" in
+    xterm-*|xterm|mintty-*|mintty|screen.xterm-*)
+        if (( "$(tput colors)" >= 256 )); then
+            fallback_screen_terms+=(screen.xterm-256color screen-256color)
+        fi
+        fallback_screen_terms+=(screen)
+        ;;
+    putty-*|putty|screen.putty-*|screen.putty)
+        if (( "$(tput colors)" >= 256 )); then
+            fallback_screen_terms+=(screen.putty-256color screen.xterm-256color screen-256color)
+        fi
+        fallback_screen_terms+=(screen.putty screen)
+        ;;
+    *)
+        if (( "$(tput colors)" >= 256 )); then
+            fallback_screen_terms+=(screen-256color)
+        fi
+        fallback_screen_terms+=(screen)
+        ;;
+    esac
+
+    for t in "${fallback_screen_terms[@]}"; do
+        if infocmp "$t" &>/dev/null; then
+            fallback_screen_term=$t
+            break
+        fi
+    done
+    unset t
+    unset fallback_screen_terms
+
+    if declare -p fallback_screen_term &>/dev/null; then
+        export SCREEN_TERM=$fallback_screen_term
+        unset fallback_screen_term
+    else
+        _show_error_message "ERROR: Failed to set \`SCREEN_TERM'\
+ environment variable."
+    fi
+fi
+
+# Disable STOP key.
+if [[ -t 0 ]]; then
+  stty stop undef
 fi
 
 # Text handled on the console is assumed to be encoded in UTF-8.
 # Therefore, check if the encoding specified in the value of `LC_CTYPE`
 # is UTF-8.
 if ! locale | grep -Eq '^LC_CTYPE=.*\.(UTF-8|utf-8|UTF8|utf8)'; then
-    echo -e "\e[91m\`LC_CTYPE' should be set to \`*.UTF-8' in order to\
- properly handle non-ascii characters.\e[m"
+    _show_error_message "WARNING: \`LC_CTYPE' should be set to\
+ \`*.UTF-8' in order to properly handle non-ascii characters."
 fi
 
-export EDITOR='emacs -nw'
 
-if [[ -t 0 ]]; then
-  stty stop undef
-fi
+
+########################################################################
+#                                                                      #
+# History                                                              #
+#                                                                      #
+########################################################################
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -50,25 +213,235 @@ HISTSIZE=100000
 HISTFILESIZE=100000
 HISTTIMEFORMAT='%Y/%m/%d %T  '
 
+# Ignore some controlling instructions
+# HISTIGNORE is a colon-delimited list of patterns which should be excluded.
+# The '&' is a special pattern which suppresses duplicate entries.
+#export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
+#export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
+
+# Whenever displaying the prompt, write the previous line to disk
+#export PROMPT_COMMAND="history -a"
+
+
+
+########################################################################
+#                                                                      #
+# Other shell options                                                  #
+#                                                                      #
+########################################################################
+
+# Don't wait for job termination notification
+#set -o notify
+
+# Don't use ^D to exit
+#set -o ignoreeof
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
+
+# Use case-insensitive filename globbing
+#shopt -s nocaseglob
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
 
+export EDITOR='emacs -nw'
+
 # make less more friendly for non-text input files, see lesspipe(1)
 [[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set variable identifying the chroot you work in (used in the prompt below)
-if [[ -z ${debian_chroot:-} && -r /etc/debian_chroot ]]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+
+
+########################################################################
+#                                                                      #
+# Aliases                                                              #
+#                                                                      #
+########################################################################
+
+# If these are enabled they will be used instead of any instructions
+# they may mask.  For example, alias rm='rm -i' will mask the rm
+# application.  To override the alias instruction use a \ before, ie
+# \rm will call the real rm not the alias.
+
+# enable color support of ls and also add handy aliases
+if [[ -x /usr/bin/dircolors ]]; then
+    if [[ -r ~/.dircolors ]]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    elif [[ -r /etc/DIR_COLORS ]]; then
+        eval "$(dircolors -b /etc/DIR_COLORS)"
+        if [[ -z $LS_COLORS ]]; then
+            eval "$(TERM=xterm-256color dircolors -b /etc/DIR_COLORS)"
+        fi
+    else
+        eval "$(dircolors -b)"
+    fi
+
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
 fi
+
+# some more ls aliases
+alias cd='pushd'
+alias p='popd'
+
+alias ll='ls -l'
+alias la='ls -A'
+alias lla='ls -lA'
+
+alias rm='rm -iv'
+alias mv='mv -iv'
+alias cp='cp -iv'
+
+# Default to human readable figures
+#alias df='df -h'
+#alias du='du -h'
+
+alias crontab='crontab -i'
+alias diffy='diff -y -W $COLUMNS'
+
+# `/usr/bin/time` can print much more usable information. However, it is
+# not available on Cygwin.
+[[ -x /usr/bin/time ]] && alias time='/usr/bin/time'
+
+alias screen='screen -U'
+alias emacs='emacs -nw'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [[ -f ~/.bash_aliases ]]; then
+    . ~/.bash_aliases
+fi
+
+
+
+########################################################################
+#                                                                      #
+# Functions.                                                           #
+#                                                                      #
+########################################################################
+
+# Add an "alert" function for long running commands.  Use like so:
+#   sleep 10; alert
+function alert ()
+{
+    local exit_status=$?
+    local command="$(history | tail -n 1\
+ | LANG=C.UTF-8 sed -e 's/^\s*[0-9]\+\s*//;
+s@^[0-9]\+/[0-9]\+/[0-9]\+\s\+[0-9]\+:[0-9]\+:[0-9]\+\s\+@@;
+s/\s*[;&|]\s*alert\s*$//')"
+    echo -en '\a'
+    if (( "$exit_status" == 0 )); then
+        local message="alert: Command terminated normally: $command"
+        if [[ -t 2 ]]; then
+            if (( "$(tput colors)" == 16777216 )); then
+                echo -E "$(tput setaf 0x00FF00)$message$(tput sgr0)" >&2
+            elif (( "$(tput colors)" == 256 || "$(tput colors)" == 16 )); then
+                echo -E "$(tput setaf 10)$message$(tput sgr0)" >&2
+            elif (( "$(tput colors)" == 8 )); then
+                echo -E "$(tput setaf 2)$message$(tput sgr0)" >&2
+            else
+                echo -E "$message" >&2
+            fi
+        else
+            echo -E "$message" >&2
+        fi
+    else
+        _show_error_message "alert: Command terminated abnormally with\
+ exit status \`$exit_status': $command"
+    fi
+}
+
+function time-n-alert ()
+{
+    /usr/bin/time "$@"; alert
+}
+
+for c in ls ll lla grep fgrep egrep diff diffy; do
+    . /dev/stdin <<-EOF
+        function ${c}less ()
+        {
+            if [[ ! -t 1 ]]; then
+                echo -E 'ERROR: Not a tty.' >&2
+                return 1
+            fi
+            if tput setaf 1 &>/dev/null; then
+                ${c} --color=always "\$@" | less -R
+            else
+                ${c} "\$@" | less
+            fi
+        }
+EOF
+done
+unset c
+
+function fix-environment ()
+{
+    if ! declare -p STY &>/dev/null; then
+        _show_error_message "ERROR: \`fix-environment' should be called\
+ in a GNU screen."
+        return 1
+    fi
+
+    if [[ ! -f ~/.screen/sessions/$STY/fix-environment.sh ]]; then
+        _show_error_message "ERROR:\
+ ~/.screen/sessions/$STY/fix-environment.sh: File does not exist.\
+ Resume this GNU screen session by \`reattach'."
+        return 1
+    fi
+
+    "$HOME/.screen/rm-stale-session-dirs.sh"
+    . "$HOME/.screen/sessions/$STY/fix-environment.sh"
+}
+
+# Some people use a different file for functions
+#if [[ -f ${HOME}/.bash_functions ]]; then
+#  . "${HOME}/.bash_functions"
+#fi
+
+
+
+########################################################################
+#                                                                      #
+# Programmable completion                                              #
+#                                                                      #
+########################################################################
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
+        . /usr/share/bash-completion/bash_completion
+    elif [[ -f /etc/bash_completion ]]; then
+        . /etc/bash_completion
+    fi
+fi
+
+
+
+########################################################################
+#                                                                      #
+# Prompts                                                              #
+#                                                                      #
+########################################################################
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color|*-256color|screen*) color_prompt=yes;;
+xterm-*|xterm) color_prompt=yes;;
+putty-*|putty) color_prompt=yes;;
+mintty-*|mintty) color_prompt=yes;;
+screen.*|screen-*|screen) color_prompt=yes;;
+*) ;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -87,191 +460,30 @@ if [[ -n $force_color_prompt ]]; then
     fi
 fi
 
-# enable color support of ls and also add handy aliases
-if [[ -x /usr/bin/dircolors ]]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
-    #alias dir='dir --color=auto'
-    #alias vdir='vdir --color=auto'
-
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+# set variable identifying the chroot you work in (used in the prompt below)
+if [[ -z ${debian_chroot:-} && -r /etc/debian_chroot ]]; then
+    debian_chroot=$(cat /etc/debian_chroot)
 fi
 
-# some more ls aliases
-alias cd='pushd'
-alias p='popd'
-alias ll='ls -l'
-alias la='ls -A'
-alias lla='ls -lA'
-alias rm='rm -iv'
-alias mv='mv -iv'
-alias cp='cp -iv'
-alias crontab='crontab -i'
-alias diffy='diff -y -W $COLUMNS'
-alias time='/usr/bin/time'
-alias screen='screen -U'
-alias emacs='emacs -nw'
 
-# Add an "alert" function for long running commands.  Use like so:
-#   sleep 10; alert
-function alert ()
-{
-    local exval=$?
-    local command="$(history | tail -n 1\
- | sed -e 's/^\s*[0-9]\+\s*//;s@^[0-9]\+/[0-9]\+/[0-9]\+\s\+[0-9]\+:[0-9]\+:[0-9]\+\s\+@@;s/[;&|]\s*alert\s*$//')"
-    echo -en '\a'
-    if (( "$exval" == 0 )); then
-        local message="alert: Command terminated normally: $command"
-        if [[ -t 1 ]] && tput setaf 1 &>/dev/null; then
-            if (( "$(tput colors)" == 256 )); then
-                echo -E "$(tput setaf 10)$message$(tput sgr0)"
-            else
-                echo -E "$(tput setaf 2)$message$(tput sgr0)"
-            fi
-        else
-            echo -E "$message"
-        fi
-    else
-        local message="alert: Command terminated abnormally with exit status \`$exval': $command"
-        if [[ -t 1 ]] && tput setaf 1 &>/dev/null; then
-            if (( "$(tput colors)" == 256 )); then
-                echo -E "$(tput setaf 9)$message$(tput sgr0)"
-            else
-                echo -E "$(tput setaf 1)$message$(tput sgr0)"
-            fi
-        else
-            echo -E "$message"
-        fi
-    fi
-}
+#=======================================================================
+# Set up `PROMPT_COMMAND` environment variable
+#=======================================================================
 
-function time-n-alert ()
-{
-    /usr/bin/time "$@"; alert
-}
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [[ -f ~/.bash_aliases ]]; then
-    . ~/.bash_aliases
+if declare -p PROMPT_COMMAND &>/dev/null && [[ -n $PROMPT_COMMAND ]]; then
+    PROMPT_COMMAND += '; '
 fi
+PROMPT_COMMAND+="[[ -x ~/.screen/hardware-status.py && ! -e ~/.screen/run/hardware-status.pid ]]\
+ && ~/.screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn"
 
-function lsless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo "error: not a tty" >&2
-        return 1
-    fi
-    ls --color=always "$@" | less -R
-}
 
-function llless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo "error: not a tty" >&2
-        return 1
-    fi
-    ll --color=always "$@" | less -R
-}
-
-function llaless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo "error: not a tty" >&2
-        return 1
-    fi
-    lla --color=always "$@" | less -R
-}
-
-function grepless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo 'error: not a tty' >&2
-    fi
-    grep --color=always "$@" | less -R
-}
-
-function fgrepless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo 'error: not a tty' >&2
-    fi
-    fgrep --color=always "$@" | less -R
-}
-
-function egrepless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo 'error: not a tty' >&2
-    fi
-    egrep --color=always "$@" | less -R
-}
-
-function diffyless ()
-{
-    if [[ ! -t 1 ]]; then
-        echo "error: not a tty" >&2
-        return 1
-    fi
-    diffy "$@" | less
-}
-
-function fix-environment ()
-{
-    if ! declare -p STY &>/dev/null; then
-        local error_message="\`fix-environment' is called in a terminal other than GNU screen."
-        if [[ -t 2 ]] && type -t tput >/dev/null; then
-            if (( "$(tput colors)" == 256 )); then
-                echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
-            else
-                echo "$(tput setaf 1)$error_message$(tput sgr0)" >&2
-            fi
-        else
-            echo "$error_message" >&2
-        fi
-        return 1
-    fi
-
-    if [[ ! -f ~/.screen/sessions/$STY/fix-environment.sh ]]; then
-        local error_message="\`~/.screen/sessions/$STY/fix-environment.sh'\
- does not exist. Resume this GNU screen session by \`reattach'."
-        if [[ -t 2 ]] && type -t tput >/dev/null; then
-            if (( "$(tput colors)" == 256 )); then
-                echo "$(tput setaf 9)$error_message$(tput sgr0)" >&2
-            else
-                echo "$(tput setaf 1)$error_message$(tput sgr0)" >&2
-            fi
-        else
-            echo "$error_message" >&2
-        fi
-        return 1
-    fi
-
-    "$HOME/.screen/rm-stale-session-dirs.sh"
-    . "$HOME/.screen/sessions/$STY/fix-environment.sh"
-}
-
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-    if [[ -f /usr/share/bash-completion/bash_completion ]]; then
-        . /usr/share/bash-completion/bash_completion
-    elif [[ -f /etc/bash_completion ]]; then
-        . /etc/bash_completion
-    fi
-fi
-
-# Set up `PS1`.
+#=======================================================================
+# Set up `PS1` environment variable
+#=======================================================================
 ps1='\n${debian_chroot:+($debian_chroot)}'
 
 case "$TERM" in
-xterm*|putty*|rxvt*|screen*)
+xterm-*|xterm|rxvt-*|rxvt|putty-*|putty|mintty-*|mintty|screen.*|screen-*|screen)
     if [[ $color_prompt == yes ]]; then
         ps1+='\[\033[92m\]\u@\h\[\033[00m\]:\[\033[96m\]\w\[\033[00m\]'
     else
@@ -284,7 +496,7 @@ esac
 unset color_prompt force_color_prompt
 
 case "$TERM" in
-xterm*|putty*|rxvt*|screen*)
+xterm-*|xterm|rxvt-*|rxvt|putty-*|putty|mintty-*|mintty|screen.*|screen-*|screen)
     # check whether `bash-completion` includes `git-completion`.
     if type -t __git_ps1 >/dev/null; then
         ps1+='$(__git_ps1)'
@@ -293,6 +505,8 @@ xterm*|putty*|rxvt*|screen*)
         . /usr/share/git-core/contrib/completion/git-prompt.sh
         ps1+='$(__git_ps1)'
     fi
+    ;;
+*) ;;
 esac
 
 if declare -p STY &>/dev/null; then
