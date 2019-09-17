@@ -267,7 +267,17 @@ export EDITOR='emacs -nw'
 
 # enable color support of ls and also add handy aliases
 if [[ -x /usr/bin/dircolors ]]; then
-    [[ -r ~/.dircolors ]] && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    if [[ -r ~/.dircolors ]]; then
+        eval "$(dircolors -b ~/.dircolors)"
+    elif [[ -r /etc/DIR_COLORS ]]; then
+        eval "$(dircolors -b /etc/DIR_COLORS)"
+        if [[ -z $LS_COLORS ]]; then
+            eval "$(TERM=xterm-256color dircolors -b /etc/DIR_COLORS)"
+        fi
+    else
+        eval "$(dircolors -b)"
+    fi
+
     alias ls='ls --color=auto'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
@@ -295,7 +305,11 @@ alias cp='cp -iv'
 
 alias crontab='crontab -i'
 alias diffy='diff -y -W $COLUMNS'
-alias time='/usr/bin/time'
+
+# `/usr/bin/time` can print much more usable information. However, it is
+# not available on Cygwin.
+[[ -x /usr/bin/time ]] && alias time='/usr/bin/time'
+
 alias screen='screen -U'
 alias emacs='emacs -nw'
 
@@ -450,6 +464,18 @@ fi
 if [[ -z ${debian_chroot:-} && -r /etc/debian_chroot ]]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
+
+
+#=======================================================================
+# Set up `PROMPT_COMMAND` environment variable
+#=======================================================================
+
+if declare -p PROMPT_COMMAND &>/dev/null && [[ -n $PROMPT_COMMAND ]]; then
+    PROMPT_COMMAND += '; '
+fi
+PROMPT_COMMAND+="[[ -x ~/.screen/hardware-status.py && ! -e ~/.screen/run/hardware-status.pid ]]\
+ && ~/.screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn"
+
 
 #=======================================================================
 # Set up `PS1` environment variable
