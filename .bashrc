@@ -470,12 +470,6 @@ fi
 # Set up `PROMPT_COMMAND` environment variable
 #=======================================================================
 
-if declare -p PROMPT_COMMAND &>/dev/null && [[ -n $PROMPT_COMMAND ]]; then
-    PROMPT_COMMAND += '; '
-fi
-PROMPT_COMMAND+="[[ -x ~/.screen/hardware-status.py && ! -e ~/.screen/run/hardware-status.pid ]]\
- && ~/.screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn"
-
 
 #=======================================================================
 # Set up `PS1` environment variable

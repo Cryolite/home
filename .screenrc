@@ -23,5 +23,8 @@ startup_message off
 term "$SCREEN_TERM"
 
 screen -t top 99 top -d1
+
 chdir
 screen
+
+screen bash -c '. ~/.local/bin/activate && .screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn'
