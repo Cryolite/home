@@ -363,10 +363,10 @@ s/\s*[;&|]\s*alert\s*$//')"
 
 function time-n-alert ()
 {
-    /usr/bin/time "$@"; alert
+    time "$@"; alert
 }
 
-for c in ls ll lla grep fgrep egrep diff diffy; do
+for c in ls ll lla grep fgrep egrep; do
     . /dev/stdin <<-EOF
         function ${c}less ()
         {
@@ -382,6 +382,29 @@ for c in ls ll lla grep fgrep egrep diff diffy; do
         }
 EOF
 done
+
+# Old versions of `diff` does not support for `--color` option.
+for c in diff diffy; do
+    . /dev/stdin <<-EOF
+        function ${c}less ()
+        {
+            if [[ ! -t 1 ]]; then
+                echo -E 'ERROR: Not a tty.' >&2
+                return 1
+            fi
+            if ! ${c} --color=always /dev/null /dev/null &>/dev/null; then
+                ${c} "\$@" | less
+                return $?
+            fi
+            if tput setaf 1 &>/dev/null; then
+                ${c} --color=always "\$@" | less -R
+            else
+                ${c} "\$@" | less
+            fi
+        }
+EOF
+done
+
 unset c
 
 function fix-environment ()
@@ -474,6 +497,7 @@ fi
 #=======================================================================
 # Set up `PS1` environment variable
 #=======================================================================
+
 ps1='\n${debian_chroot:+($debian_chroot)}'
 
 case "$TERM" in

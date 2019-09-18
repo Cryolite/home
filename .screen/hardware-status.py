@@ -168,9 +168,17 @@ def get_all_screen_sessions() -> List[ScreenSession]:
     process = subprocess.run(
         ['screen', '-ls'], stdin=DEVNULL, stdout=PIPE, stderr=PIPE,
         encoding='UTF-8')
-    if process.returncode != 0:
-        if process.stdout.startswith('No Sockets found in '):
-            return []
+
+    if process.stdout.startswith('No Sockets found in '):
+        return []
+
+    # `screen -ls` of old GNU screens (4.01.00devel on CentOS 7.6.1810
+    # at least) exits with a non-zero status even if there exists a
+    # session. Therefore, exit status cannot be used to check whether
+    # an error occurs.
+
+    if not process.stdout.startswith('There is a screen on:')\
+       and not process.stdout.startswith('There are screens on:'):
         raise RuntimeError(f'''ERROR: Failed to execute the following command:
 args: {process.args}
 stdout: {process.stdout}
