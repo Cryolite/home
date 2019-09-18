@@ -407,6 +407,11 @@ done
 
 unset c
 
+
+#=======================================================================
+# Convenient functions for SSH clients and agents
+#=======================================================================
+
 function fix-environment ()
 {
     if ! declare -p STY &>/dev/null; then
@@ -449,6 +454,48 @@ if ! shopt -oq posix; then
         . /etc/bash_completion
     fi
 fi
+
+
+
+########################################################################
+#                                                                      #
+# Make SSH clients more convenient                                     #
+#                                                                      #
+########################################################################
+
+#=======================================================================
+# Always run `ssh-pageant`.
+#=======================================================================
+function _ssh_pageant ()
+{
+    if [[ ! -e ~/.ssh ]]; then
+        if ! (umask 0077 && mkdir ~/.ssh); then
+            _show_error_message 'ERROR: ~/.ssh: Failed to create a directory.'
+            return 1
+        fi
+    fi
+    if [[ ! -d ~/.ssh ]]; then
+        _show_error_message 'ERROR: ~/.ssh: Not a directory.'
+        return 1
+    fi
+
+    if [[ ! -e ~/.ssh/run ]]; then
+        if ! (umask 0077 && mkdir ~/.ssh/run); then
+            _show_error_message 'ERROR: ~/.ssh/run: Failed to create a directory.'
+            return 1
+        fi
+    fi
+    if [[ ! -d ~/.ssh/run ]]; then
+        _show_error_message 'ERROR: ~/.ssh/run: Not a directory.'
+        return 1
+    fi
+
+    eval `ssh-pageant -a ~/.ssh/run/agent -r`
+    return $?
+}
+
+uname | grep -Eq '^CYGWIN' && /usr/bin/ssh-pageant && _ssh_pageant
+unset _ssh_pageant
 
 
 
