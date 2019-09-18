@@ -408,29 +408,6 @@ done
 unset c
 
 
-#=======================================================================
-# Convenient functions for SSH clients and agents
-#=======================================================================
-
-function fix-environment ()
-{
-    if ! declare -p STY &>/dev/null; then
-        _show_error_message "ERROR: \`fix-environment' should be called\
- in a GNU screen."
-        return 1
-    fi
-
-    if [[ ! -f ~/.screen/sessions/$STY/fix-environment.sh ]]; then
-        _show_error_message "ERROR:\
- ~/.screen/sessions/$STY/fix-environment.sh: File does not exist.\
- Resume this GNU screen session by \`reattach'."
-        return 1
-    fi
-
-    "$HOME/.screen/rm-stale-session-dirs.sh"
-    . "$HOME/.screen/sessions/$STY/fix-environment.sh"
-}
-
 # Some people use a different file for functions
 #if [[ -f ${HOME}/.bash_functions ]]; then
 #  . "${HOME}/.bash_functions"
@@ -464,8 +441,9 @@ fi
 ########################################################################
 
 #=======================================================================
-# Always run `ssh-pageant`.
+# Always run `ssh-pageant` on Cygwin.
 #=======================================================================
+
 function _ssh_pageant ()
 {
     if [[ ! -e ~/.ssh ]]; then
@@ -494,8 +472,64 @@ function _ssh_pageant ()
     return $?
 }
 
-uname | grep -Eq '^CYGWIN' && /usr/bin/ssh-pageant && _ssh_pageant
+uname | grep -Eq '^CYGWIN' && [[ -x /usr/bin/ssh-pageant ]] && _ssh_pageant
 unset _ssh_pageant
+
+
+#=======================================================================
+# Convenient functions for SSH clients and agents
+#=======================================================================
+
+# The following function is designed to solve inconvenience caused by
+# using SSH and GNU screen together. Steps to reproduce the problem
+# situation is as follows:
+#
+#   1. Login to a host via SSH with agent forwarding being enabled.
+#   2. Start a new GNU screen session on the host.
+#   3. Detach the session.
+#   4. Logout from the host.
+#   5. Login again to the host via SSH with agent forwarding begin
+#      enabled.
+#   6. Attach the GNU screen session.
+#
+# At this point, `SSH_AUTH_SOCK` in environments in the session refers
+# to the socket at the first login, which is stale in the second and
+# subsequent logins. Therefore, SSH agent forwarding is broken on
+# environments in that session.
+#
+# Combining `reattach` script located at `~/.local/bin` and the
+# following `fix-environment` function can solve the problem described
+# above. Steps to fix it is as follows:
+#
+#   1. In the second or subsequent logins, reattach a detached session
+#      by `reattach` script.
+#   2. Call `fix-environment` in an environment in the reattached
+#      session where `SSH_AUTH_SOCK` is a stale value.
+#
+# The above steps fix the value of `SSH_AUTH_SOCK` and re-enable SSH
+# agent forwarding in environments in the session.
+#
+# Kerberos forwardable tickets suffer from the same problem. `reattach`
+# combined with `fix-environment` also solve the problem for Kerberos
+# tickets.
+function fix-environment ()
+{
+    if ! declare -p STY &>/dev/null; then
+        _show_error_message "ERROR: \`fix-environment' should be called\
+ in a GNU screen."
+        return 1
+    fi
+
+    if [[ ! -f ~/.screen/sessions/$STY/fix-environment.sh ]]; then
+        _show_error_message "ERROR:\
+ ~/.screen/sessions/$STY/fix-environment.sh: File does not exist.\
+ Resume this GNU screen session by \`reattach'."
+        return 1
+    fi
+
+    "$HOME/.screen/rm-stale-session-dirs.sh"
+    . "$HOME/.screen/sessions/$STY/fix-environment.sh"
+}
 
 
 
