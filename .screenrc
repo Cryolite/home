@@ -18,11 +18,13 @@ cjkwidth on
 defscrollback 10000
 bind ^x
 escape ^z^z
-hardstatus alwayslastline "%{= bw}%02c:%02s%{-}%0`"
+#hardstatus alwayslastline "%{= bw}%02c:%02s%{-}"
 startup_message off
-backtick 0 1 0 "$HOME/.screen/backtick.py" "$STY" --left-padding 40 --fqdn
 term "$SCREEN_TERM"
 
 screen -t top 99 top -d1
+
 chdir
 screen
+
+screen bash -c '. ~/.local/bin/activate && .screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn'
