@@ -607,7 +607,13 @@ unset color_prompt force_color_prompt
 case "$TERM" in
 xterm-*|xterm|rxvt-*|rxvt|putty-*|putty|mintty-*|mintty|screen.*|screen-*|screen)
     # check whether `bash-completion` includes `git-completion`.
-    if type -t __git_ps1 >/dev/null; then
+    if [[ -r ~/.git-prompt.sh ]]; then
+        # On Cygwin, `git-completion.sh` is not available. Therefore,
+        # assume that the user has their own copy of `git-completion.sh`
+        # in the home directory.
+        . ~/.git-prompt.sh
+        ps1+='$(__git_ps1)'
+    elif type -t __git_ps1 >/dev/null; then
         ps1+='$(__git_ps1)'
     elif [[ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]]; then
         # For CentOS 7.
