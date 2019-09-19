@@ -14,7 +14,7 @@ Transparency=64
 #OpaqueWhenFocused=no
 
 ## Cursor ==============================================================
-#CursorType=line
+CursorType=Block
 
 ## Cursor blink ========================================================
 #CursorBlinks=yes
