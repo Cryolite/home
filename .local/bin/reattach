@@ -31,7 +31,7 @@ case "${1-}" in
 esac
 
 if (( $# > 1 )); then
-  die-with-user-error "Too many arguments."
+  die-with-user-error 'Too many arguments.'
 fi
 
 if (( $# == 1 )) && [[ ! $1 =~ ^[1-9][[:digit:]]* ]]; then
@@ -49,17 +49,19 @@ if (( ${#matched_detached_sessions[@]} == 0 )); then
 fi
 
 if (( ${#matched_detached_sessions[@]} > 1 )); then
-  die-with-runtime-error "$({ screen -r ${1+"$1"} || true; } |& sed -e 's/^Type \"screen \[-d\] -r /Type \"reattach /')"
+  die-with-runtime-error "$({ screen -r ${1+"$1"} || true; }\
+ |& sed -e 's/^Type \"screen \[-d\] -r /Type \"reattach /')"
 fi
 
 session="${matched_detached_sessions[0]}"
 
 # On Debian 9 (Stretch) and CentOS 7, the entity in the socket directory
 # corresponding to an existing session is a socket.
-# On CentOS 6, the entity in the socket directory corresponding to an
+# On CentOS 6.9, the entity in the socket directory corresponding to an
 # existing session is a fifo.
-if [[ ! -S $("$HOME/.screen/screendir.sh")/$session && ! -p $("$HOME/.screen/screendir.sh")/$session ]]; then
-  die-with-logic-error
+if [[ ! -S $("$HOME/.screen/screendir.sh")/$session\
+ && ! -p $("$HOME/.screen/screendir.sh")/$session ]]; then
+  die-with-logic-error "$("$HOME/.screen/screendir.sh")/$session: Neither a socket nor a fifo."
 fi
 
 "$HOME/.screen/rm-stale-session-dirs.sh"
