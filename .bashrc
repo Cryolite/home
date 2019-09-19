@@ -180,10 +180,12 @@ else
     fi
 fi
 
+
 # Disable STOP key.
 if [[ -t 0 ]]; then
   stty stop undef
 fi
+
 
 # Text handled on the console is assumed to be encoded in UTF-8.
 # Therefore, check if the encoding specified in the value of `LC_CTYPE`
@@ -299,7 +301,7 @@ if [[ -x /usr/bin/dircolors ]]; then
     alias egrep='egrep --color=auto'
 fi
 
-# Some more ls aliases.
+# Some more `ls` aliases.
 alias cd='pushd'
 alias p='popd'
 
@@ -329,7 +331,6 @@ alias emacs='emacs -nw'
 # You may want to put all your additions into a separate file like
 # `~/.bash_aliases`, instead of adding them here directly.  See
 # `/usr/share/doc/bash-doc/examples` in the bash-doc package.
-
 if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
 fi

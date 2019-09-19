@@ -42,9 +42,6 @@ class Parameters(object):
         if params.daemonize is not None:
             self._pid_file_path = Path(params.daemonize)
             self._pid_file_path = self._pid_file_path.expanduser()
-            if not self._pid_file_path.parent.is_dir():
-                raise RuntimeError(f'ERROR: {self._pid_file_path}:'
-                                   ' Parent directory does not exist.')
         else:
             self._pid_file_path = None
 
@@ -188,14 +185,14 @@ returncode: {process.returncode}''')
     screen_sessions = []
     for line in process.stdout.splitlines():
         m = re.search('^\\s*(\\d+\\.pts-\\d+\\.\\S+)'
-                      '\\s*\\((?:Attached|Detached)\\)$', line)
+                      '\\s+.*\\((?:Attached|Detached)\\)$', line)
         if m is not None:
             screen_session = ScreenSession(m.group(1))
             screen_sessions.append(screen_session)
             continue
 
         m = re.search('^\\s*(\\d+\\.pty\\d+\\.\\S+)'
-                      '\\s*\\((?:Attached|Detached)\\)$', line)
+                      '\\s+.*\\((?:Attached|Detached)\\)$', line)
         if m is not None:
             screen_session = ScreenSession(m.group(1))
             screen_sessions.append(screen_session)
@@ -371,8 +368,10 @@ def main(params: Parameters) -> None:
 if __name__ == '__main__':
     params = Parameters()
     if params.pid_file_path is not None:
-        pid_file = TimeoutPIDLockFile(
-            params.pid_file_path, acquire_timeout=0.0)
+        pid_file_path = params.pid_file_path
+        pid_dir_path = pid_file_path.parent
+        pid_dir_path.mkdir(mode=0o700, exist_ok=True)
+        pid_file = TimeoutPIDLockFile(pid_file_path, acquire_timeout=0.0)
         with DaemonContext(umask=0o022, pidfile=pid_file):
             main(params)
     else:
