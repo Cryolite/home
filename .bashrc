@@ -1,6 +1,6 @@
 # ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# See /usr/share/doc/bash/examples/startup-files (in the package
+# bash-doc) for examples.
 
 
 
@@ -26,7 +26,7 @@ export PATH=$HOME/.local/bin${PATH:+:$PATH}
 
 
 
-# If not running interactively, don't do anything
+# If not running interactively, don't do anything.
 case $- in
     *i*) ;;
       *) return;;
@@ -201,26 +201,28 @@ fi
 #                                                                      #
 ########################################################################
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
+# Don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options.
 HISTCONTROL=ignoreboth
 
-# append to the history file, don't overwrite it
+# Append to the history file, don't overwrite it.
 shopt -s histappend
 
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+# For setting history length see HISTSIZE and HISTFILESIZE in bash(1).
 HISTSIZE=100000
 HISTFILESIZE=100000
 HISTTIMEFORMAT='%Y/%m/%d %T  '
 
-# Ignore some controlling instructions
-# HISTIGNORE is a colon-delimited list of patterns which should be excluded.
-# The '&' is a special pattern which suppresses duplicate entries.
+# Ignore some controlling instructions.  `HISTIGNORE` is a
+# colon-delimited list of patterns which should be excluded.  The '&' is
+# a special pattern which suppresses duplicate entries.
 #export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
 #export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
 
-# Whenever displaying the prompt, write the previous line to disk
-#export PROMPT_COMMAND="history -a"
+# Uncomment the following line in order to immediately append a command
+# run by a bash shell on a host to the history of other bash shells
+# running on the same host.
+#PROMPT_COMMAND=${PROMPT_COMMAND}${PROMPT_COMMAND:+; }'history -a; history -c; history -r'
 
 
 
@@ -230,17 +232,17 @@ HISTTIMEFORMAT='%Y/%m/%d %T  '
 #                                                                      #
 ########################################################################
 
-# Don't wait for job termination notification
+# Don't wait for job termination notification.
 #set -o notify
 
-# Don't use ^D to exit
+# Don't use ^D to exit.
 #set -o ignoreeof
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
+# Check the window size after each command and, if necessary, update the
+# values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-# Use case-insensitive filename globbing
+# Use case-insensitive filename globbing.
 #shopt -s nocaseglob
 
 # If set, the pattern "**" used in a pathname expansion context will
@@ -249,7 +251,7 @@ shopt -s checkwinsize
 
 export EDITOR='emacs -nw'
 
-# make less more friendly for non-text input files, see lesspipe(1)
+# Make less more friendly for non-text input files, see lesspipe(1).
 [[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
 
@@ -265,7 +267,7 @@ export EDITOR='emacs -nw'
 # application.  To override the alias instruction use a \ before, ie
 # \rm will call the real rm not the alias.
 
-# enable color support of ls and also add handy aliases
+# Enable color support of `ls` and also add handy aliases.
 if [[ -x /usr/bin/dircolors ]]; then
     unset LS_COLORS
     if [[ -r ~/.dircolors ]]; then
@@ -297,7 +299,7 @@ if [[ -x /usr/bin/dircolors ]]; then
     alias egrep='egrep --color=auto'
 fi
 
-# some more ls aliases
+# Some more ls aliases.
 alias cd='pushd'
 alias p='popd'
 
@@ -309,15 +311,15 @@ alias rm='rm -iv'
 alias mv='mv -iv'
 alias cp='cp -iv'
 
-# Default to human readable figures
-#alias df='df -h'
-#alias du='du -h'
+# Default to human readable figures.
+alias df='df -h'
+alias du='du -h'
 
 alias crontab='crontab -i'
 alias diffy='diff -y -W $COLUMNS'
 
-# `/usr/bin/time` can print much more usable information. However, it is
-# not available on Cygwin.
+# `/usr/bin/time` can print much more usable information than bash's
+# `time` builtin.  However, it is not available on Cygwin.
 [[ -x /usr/bin/time ]] && alias time='/usr/bin/time'
 
 alias screen='screen -U'
@@ -325,8 +327,8 @@ alias emacs='emacs -nw'
 
 # Alias definitions.
 # You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+# `~/.bash_aliases`, instead of adding them here directly.  See
+# `/usr/share/doc/bash-doc/examples` in the bash-doc package.
 
 if [[ -f ~/.bash_aliases ]]; then
     . ~/.bash_aliases
@@ -418,7 +420,7 @@ done
 unset c
 
 
-# Some people use a different file for functions
+# Some people use a different file for functions.
 #if [[ -f ${HOME}/.bash_functions ]]; then
 #  . "${HOME}/.bash_functions"
 #fi
@@ -431,9 +433,9 @@ unset c
 #                                                                      #
 ########################################################################
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
+# Enable programmable completion features (you don't need to enable
+# this, if it's already enabled in `/etc/bash.bashrc` and `/etc/profile`
+# sources `/etc/bash.bashrc`).
 if ! shopt -oq posix; then
     if [[ -f /usr/share/bash-completion/bash_completion ]]; then
         . /usr/share/bash-completion/bash_completion
@@ -487,41 +489,40 @@ unset _ssh_pageant
 
 
 #=======================================================================
-# Convenient functions for SSH clients and agents
+# Convenient functions for SSH clients and agents.
 #=======================================================================
 
 # The following function is designed to solve inconvenience caused by
-# using SSH and GNU screen together. Steps to reproduce the problem
+# using SSH and GNU screen together.  Steps to reproduce the problem
 # situation is as follows:
 #
 #   1. Login to a host via SSH with agent forwarding being enabled.
 #   2. Start a new GNU screen session on the host.
 #   3. Detach the session.
 #   4. Logout from the host.
-#   5. Login again to the host via SSH with agent forwarding begin
+#   5. Login again to the host via SSH with agent forwarding being
 #      enabled.
-#   6. Attach the GNU screen session.
+#   6. Reattach the previously created session.
 #
-# At this point, `SSH_AUTH_SOCK` in environments in the session refers
-# to the socket at the first login, which is stale in the second and
-# subsequent logins. Therefore, SSH agent forwarding is broken on
-# environments in that session.
+# At this point, `SSH_AUTH_SOCK` in the GNU screen session refers to the
+# socket created at the first login, which is stale in the second and
+# subsequent logins.  Therefore, SSH agent forwarding is broken and no
+# longer available in that session.
 #
 # Combining `reattach` script located at `~/.local/bin` and the
 # following `fix-environment` function can solve the problem described
-# above. Steps to fix it is as follows:
+# above.  Steps to fix it is as follows:
 #
 #   1. In the second or subsequent logins, reattach a detached session
-#      by `reattach` script.
-#   2. Call `fix-environment` in an environment in the reattached
-#      session where `SSH_AUTH_SOCK` is a stale value.
+#      with `reattach` script.
+#   2. Call `fix-environment` in the reattached session.
 #
 # The above steps fix the value of `SSH_AUTH_SOCK` and re-enable SSH
-# agent forwarding in environments in the session.
+# agent forwarding in the session.
 #
-# Kerberos forwardable tickets suffer from the same problem. `reattach`
-# combined with `fix-environment` also solve the problem for Kerberos
-# tickets.
+# Kerberos forwardable tickets suffer from the same problem.  `reattach`
+# script combined with `fix-environment` function also solve the problem
+# for tickets.
 function fix-environment ()
 {
     if ! declare -p STY &>/dev/null; then
@@ -549,7 +550,7 @@ function fix-environment ()
 #                                                                      #
 ########################################################################
 
-# set a fancy prompt (non-color, unless we know we "want" color)
+# Set a fancy prompt (non-color, unless we know we "want" color).
 case "$TERM" in
 xterm-*|xterm) color_prompt=yes;;
 putty-*|putty) color_prompt=yes;;
@@ -558,35 +559,37 @@ screen.*|screen-*|screen) color_prompt=yes;;
 *) ;;
 esac
 
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
+# Uncomment for a colored prompt, if the terminal has the capability;
+# turned off by default to not distract the user: the focus in a
+# terminal window should be on the output of commands, not on the
+# prompt.
 #force_color_prompt=yes
 
 if [[ -n $force_color_prompt ]]; then
     if [[ -x /usr/bin/tput ]] && tput setaf 1 >&/dev/null; then
         # We have color support; assume it's compliant with Ecma-48
-        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-        # a case would tend to support setf rather than setaf.)
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and
+        # such a case would tend to support setf rather than setaf.)
         color_prompt=yes
     else
         color_prompt=
     fi
 fi
 
-# set variable identifying the chroot you work in (used in the prompt below)
+# Set variable identifying the chroot you work in (used in the prompt
+# below).
 if [[ -z ${debian_chroot:-} && -r /etc/debian_chroot ]]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
 
 #=======================================================================
-# Set up `PROMPT_COMMAND` environment variable
+# Set up `PROMPT_COMMAND` environment variable.
 #=======================================================================
 
 
 #=======================================================================
-# Set up `PS1` environment variable
+# Set up `PS1` environment variable.
 #=======================================================================
 
 ps1='\n${debian_chroot:+($debian_chroot)}'
@@ -604,13 +607,18 @@ esac
 
 unset color_prompt force_color_prompt
 
+
+#=======================================================================
+# Git prompt.
+#=======================================================================
+
 case "$TERM" in
 xterm-*|xterm|rxvt-*|rxvt|putty-*|putty|mintty-*|mintty|screen.*|screen-*|screen)
-    # check whether `bash-completion` includes `git-completion`.
+    # Check whether `bash-completion` includes `git-completion`.
     if [[ -r ~/.git-prompt.sh ]]; then
-        # On Cygwin, `git-completion.sh` is not available. Therefore,
+        # On Cygwin, `git-completion.sh` is not available.  Therefore,
         # assume that the user has their own copy of `git-completion.sh`
-        # in the home directory.
+        # in their home directory.
         . ~/.git-prompt.sh
         ps1+='$(__git_ps1)'
     elif type -t __git_ps1 >/dev/null; then
@@ -623,6 +631,11 @@ xterm-*|xterm|rxvt-*|rxvt|putty-*|putty|mintty-*|mintty|screen.*|screen-*|screen
     ;;
 *) ;;
 esac
+
+
+#=======================================================================
+# Hooks on prompting to maintain GNU screen's window title and status.
+#=======================================================================
 
 if declare -p STY &>/dev/null; then
     # The current interactive shell is running on a window of a GNU
@@ -691,6 +704,7 @@ fi
 PS1="$ps1"'\$ '
 unset ps1
 
+
 # Configurations to establish TeX Live environment.
 case "$TERM" in
     screen*) ;;
@@ -701,6 +715,7 @@ case "$TERM" in
         ;;
 esac
 
+
 case "$TERM" in
     screen*) ;;
     *)
@@ -709,6 +724,7 @@ case "$TERM" in
         fi
         ;;
 esac
+
 
 case "$TERM" in
     screen*) ;;
