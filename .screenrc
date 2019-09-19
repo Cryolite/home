@@ -1,5 +1,10 @@
 windowlist title '%{+ub}Num  Title%020=  Hardstatus%-07=  Flags%{-}'
 windowlist string '%3n  %t%020=  %h%-07=  %f'
+
+# Without the following setting, GNU screen shows an annoying message
+# "Utmp slot not found" on startup.
+deflogin off
+
 bell_msg "Bell in window %n^G"
 vbell on
 altscreen on
@@ -20,7 +25,10 @@ bind ^x
 escape ^z^z
 #hardstatus alwayslastline "%{= bw}%02c:%02s%{-}"
 startup_message off
-term "$SCREEN_TERM"
+
+# The following setting of `term` seems the best to run Emacs with a
+# theme that requires 256 colors.
+term screen-256color
 
 screen -t top 99 top -d1
 
