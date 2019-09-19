@@ -267,14 +267,24 @@ export EDITOR='emacs -nw'
 
 # enable color support of ls and also add handy aliases
 if [[ -x /usr/bin/dircolors ]]; then
+    unset LS_COLORS
     if [[ -r ~/.dircolors ]]; then
         eval "$(dircolors -b ~/.dircolors)"
-    elif [[ -r /etc/DIR_COLORS ]]; then
+    fi
+    # `DIR_COLORS.256color` is not my preference.
+    #if [[ -z $LS_COLORS && -r /etc/DIR_COLORS.256color ]] && (( "$(tput colors)" >= 256 )); then
+    #    eval "$(dircolors -b /etc/DIR_COLORS.256color)"
+    #    if [[ -z $LS_COLORS ]]; then
+    #        eval "$(TERM=xterm-256color dircolors -b /etc/DIR_COLORS.256color)"
+    #    fi
+    #fi
+    if [[ -z $LS_COLORS && -r /etc/DIR_COLORS ]]; then
         eval "$(dircolors -b /etc/DIR_COLORS)"
         if [[ -z $LS_COLORS ]]; then
             eval "$(TERM=xterm-256color dircolors -b /etc/DIR_COLORS)"
         fi
-    else
+    fi
+    if [[ -z $LS_COLORS ]]; then
         eval "$(dircolors -b)"
     fi
 
