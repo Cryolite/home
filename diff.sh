@@ -36,7 +36,7 @@ done
 
 if uname | grep -Eq '^CYGWIN'; then
     # On Cygwin.
-    files=(.minttyrc)
+    files=(.minttyrc .git-prompt.sh)
     for f in "${files[@]}"; do
         _diff "$f"
     done
