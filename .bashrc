@@ -640,47 +640,47 @@ esac
 
 if declare -p STY &>/dev/null; then
     # The current interactive shell is running on a window of a GNU
-    # `screen` session. The following configuration of prompts (and
+    # `screen` session.  The following configuration of prompts (and
     # `DEBUG` trap in older Bash below 4.4) sets up the title (see
     # https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
     # for detail) and the hardstatus (see
     # https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
-    # for detail) of the window. The title and hardstatus are set to
+    # for detail) of the window.  The title and hardstatus are set to
     # short and detailed descriptions of the state of the shell,
     # respectively.
     #
     # The following explains how it works.
     #
     # Immediately after reading a command line but before it is actually
-    # executed, `~/.screen/ps0-hook.py` is executed. In older Bash below
-    # 4.4, this script is executed by `DEBUG` trap (See
+    # executed, `~/.screen/ps0-hook.py` is executed.  In older Bash
+    # below 4.4, this script is executed by `DEBUG` trap (See
     # https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html#index-trap
-    # for detail). In Bash 4.4 or later, it is executed by a command
+    # for detail).  In Bash 4.4 or later, it is executed by a command
     # substitution in `PS0` environment variable (see
     # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html#index-PS0
     # and https://www.gnu.org/software/bash/manual/html_node/Interactive-Shell-Behavior.html
-    # for detail). This script parses the contents of the files
-    # `<(history 1)` and `<(jobs)`. Then, it sets the window title to a
-    # short description of the job that is about to be executed by a
-    # command line and the window hardstatus to a detailed description.
-    # This is done by printing the escape sequences
-    # `<ESC>k<window title><ESC>\` (see
+    # for detail).  This script parses output of `history 1` and `jobs`.
+    # Then, it sets the window title to a short description of the job
+    # that is about to be executed by a command line and the window
+    # hardstatus to a detailed description.  This is done by printing
+    # the escape sequences `<ESC>k<window title><ESC>\` (see
     # https://www.gnu.org/software/screen/manual/html_node/Naming-Windows.html
     # for detail) and `<ESC>_<window hardstatus><ESC>\` (see
     # https://www.gnu.org/software/screen/manual/html_node/Hardstatus.html
     # for detail) to the standard output, i.e., the GNU screen's tty.
-    # These sequences are not visible at all. Therefore, it never
-    # disturb the console display.
+    # These sequences are not visible on the console at all.  Therefore,
+    # it never disturbs the console display.
     #
     # After execution of a command completes and it exits, the value of
-    # `PS1` is expanded and displayed. The value includes
+    # `PS1` is expanded and displayed.  The value includes
     # `\[<ESC>kbash<ESC>\\\]` and `\[<ESC>_\u@\H:\w<ESC>\\\]` (see
     # https://www.gnu.org/software/bash/manual/html_node/Controlling-the-Prompt.html
-    # for detail). These are not visible at all but reset the title and
-    # hardstatus to `bash` and `<user>@<host>:/path/to/working/dir`,
-    # respectively. Therefore, while the shell prompt is displayed and
-    # no command is running, the title and hardstatus are set to `bash`
-    # and `<user>@<host>:/path/to/working/dir`, repectively.
+    # for details on escape sequences in prompt strings).  These are not
+    # visible on the console at all but reset the title and hardstatus
+    # to `bash` and `<user>@<host>:/path/to/working/dir`, respectively.
+    # Therefore, while the shell prompt is being displayed and no
+    # command is running, the title and hardstatus are set to `bash` and
+    # `<user>@<host>:/path/to/working/dir`, repectively.
 
     if (( ${BASH_VERSINFO[0]} <= 3 || ${BASH_VERSINFO[0]} == 4 && ${BASH_VERSINFO[1]} < 4 )); then
         # `PS0` is available only in Bash 4.4 and later. Fall back to
