@@ -301,10 +301,10 @@ if [[ -x /usr/bin/dircolors ]]; then
     alias egrep='egrep --color=auto'
 fi
 
-# Some more `ls` aliases.
 alias cd='pushd'
 alias p='popd'
 
+# Some more `ls` aliases.
 alias ll='ls -l'
 alias la='ls -A'
 alias lla='ls -lA'
@@ -485,7 +485,7 @@ function _ssh_pageant ()
     return $?
 }
 
-uname | grep -Eq '^CYGWIN' && [[ -x /usr/bin/ssh-pageant ]] && _ssh_pageant
+[[ $(uname) =~ ^CYGWIN && -x /usr/bin/ssh-pageant ]] && _ssh_pageant
 unset _ssh_pageant
 
 

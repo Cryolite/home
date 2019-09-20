@@ -35,4 +35,26 @@ screen -t top 99 top -d1
 chdir
 screen
 
+# Start `.screen/hardware-status.py` script.  It formats and updates the
+# hardware statuses of all GNU screen sessions with a short interval.
+# Therefore, the hardware statuses look like reflecting information in
+# real time.  In addition, it always keeps track of changes in terminal
+# sizes so that the format of hardware statuses is kept to fit the
+# terminal size dynamically.
+#
+# The script is daemonized.  Therefore, the following `screen` command
+# temporarily creates a new window although, the script exits
+# immediately, and the window is closed accordingly.
+#
+# A forked process of the script still continues to run in background
+# after that.  The process will terminate automatically when there is no
+# longer any GNU screen session.  It is therefore not necessary to
+# terminate the process manually.
+#
+# `.screen/hardware-status.py` with `--daemonized` option can be invoked
+# multiple times without any hindrance.  Such a situation happens when
+# creating multiple GNU screen sessions.  When a background process of
+# `.screen/hardware-status.py` is running, invoking
+# `.screen/hardware-status.py` do not fork any further background
+# process, has no effect, and then exits immediately.
 screen bash -c '{ . ~/.local/bin/activate && .screen/hardware-status.py --daemonize ~/.screen/run/hardware-status.pid --fqdn; } || sleep 60'
