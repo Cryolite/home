@@ -24,7 +24,6 @@ files=(.bashrc
        .emacs.d/lisp/yaml-mode.el
        .local/bin/common.sh
        .local/bin/reattach
-       .screen/hardware-status.py
        .screen/ps0-hook.py
        .screen/rm-stale-session-dirs.sh
        .screen/screendir.sh
