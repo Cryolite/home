@@ -138,46 +138,11 @@ function _show_error_message ()
 if declare -p SCREEN_TERM &>/dev/null; then
     :
 elif infocmp "screen.$TERM" &>/dev/null; then
-    export SCREEN_TERM="screen.$TERM"
+    export SCREEN_TERM=screen.$TERM
+elif (( "$(tput colors)" >= 256 )); then
+    export SCREEN_TERM=screen-256
 else
-    declare -a fallback_screen_terms
-    case "$TERM" in
-    xterm-*|xterm|mintty-*|mintty|screen.xterm-*)
-        if (( "$(tput colors)" >= 256 )); then
-            fallback_screen_terms+=(screen.xterm-256color screen-256color)
-        fi
-        fallback_screen_terms+=(screen)
-        ;;
-    putty-*|putty|screen.putty-*|screen.putty)
-        if (( "$(tput colors)" >= 256 )); then
-            fallback_screen_terms+=(screen.putty-256color screen.xterm-256color screen-256color)
-        fi
-        fallback_screen_terms+=(screen.putty screen)
-        ;;
-    *)
-        if (( "$(tput colors)" >= 256 )); then
-            fallback_screen_terms+=(screen-256color)
-        fi
-        fallback_screen_terms+=(screen)
-        ;;
-    esac
-
-    for t in "${fallback_screen_terms[@]}"; do
-        if infocmp "$t" &>/dev/null; then
-            fallback_screen_term=$t
-            break
-        fi
-    done
-    unset t
-    unset fallback_screen_terms
-
-    if declare -p fallback_screen_term &>/dev/null; then
-        export SCREEN_TERM=$fallback_screen_term
-        unset fallback_screen_term
-    else
-        _show_error_message "ERROR: Failed to set \`SCREEN_TERM'\
- environment variable."
-    fi
+    export SCREEN_TERM=screen
 fi
 
 
