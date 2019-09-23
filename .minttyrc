@@ -1,0 +1,421 @@
+########################################################################
+# Looks                                                                #
+########################################################################
+
+## Colours =============================================================
+ForegroundColour=0,255,0
+BackgroundColour=Black
+CursorColour=0,255,0
+
+## Transparency ========================================================
+Transparency=64
+
+## Opaque when focused =================================================
+#OpaqueWhenFocused=no
+
+## Cursor ==============================================================
+CursorType=Block
+
+## Cursor blink ========================================================
+#CursorBlinks=yes
+
+
+
+########################################################################
+# Text                                                                 #
+########################################################################
+
+## Font selection ======================================================
+Font=Inconsolata Regular
+#FontWeight=400
+#FontIsBold=no
+FontHeight=12
+
+#FontSample=
+
+#ShowHiddenFonts=no
+
+#FontMenu=-1
+
+## Text lines ==========================================================
+#UnderlineManual=false
+
+## Show bold as font ===================================================
+BoldAsFont=yes
+
+## Show bold as colour =================================================
+#BoldAsColour=yes
+
+## Bold substitution colour ============================================
+BoldColour=128,255,128
+
+## Bold as special background ==========================================
+#BoldAsRainbowSparkles=false
+
+## Allow blinking ======================================================
+#AllowBlinking=no
+
+## Font smoothing ======================================================
+#FontSmoothing=default
+
+## Font rendering ======================================================
+#FontRender=uniscribe
+
+## Locale ==============================================================
+Locale=C
+
+## Character set =======================================================
+Charset=UTF-8
+
+
+
+########################################################################
+# Keys                                                                 #
+########################################################################
+
+## Auto-repeat keys ====================================================
+#AutoRepeat=on
+
+## Backarrow sends ^H ==================================================
+#BackspaceSendsBS=no
+
+## Delete sends DEL ====================================================
+#DeleteSendsDEL=no
+
+## Ctrl+LeftAlt is AltGr ===============================================
+#CtrlAltIsAltGr=no
+
+## Allow delay for AltGr detection =====================================
+#CtrlAltDelayAltGr=0
+
+## Old method of AltGr detection =======================================
+#OldAltGrDetection=no
+
+## Support injection of external hotkeys ===============================
+#SupportExternalHotkeys=2
+
+## Copy and Paste shortcuts ============================================
+#ClipShortcuts=yes
+
+## Menu and Full Screen shortcuts ======================================
+#WindowShortcuts=yes
+
+## Switch window shortcuts =============================================
+#SwitchShortcuts=yes
+
+## Zoom shortcuts ======================================================
+#ZoomShortcuts=yes
+
+## Alt+Fn shortcuts ====================================================
+#AltFnShortcuts=yes
+
+## Ctrl+Shift+letter shortcuts =========================================
+#CtrlShiftShortcuts=no
+
+## Compose key selection ===============================================
+#ComposeKey=off
+
+
+
+########################################################################
+# Mouse                                                                #
+########################################################################
+
+## Copy on select ======================================================
+#CopyOnSelect=yes
+
+## Copy as rich text ===================================================
+#CopyAsRTF=yes
+
+## Copy as HTML ========================================================
+#CopyAsHTML=0
+
+## Clicks place command line cursor ====================================
+#ClicksPlaceCursor=no
+
+## Right mouse button ==================================================
+RightClickAction=Paste
+
+## Middle mouse button =================================================
+MiddleClickAction=Void
+
+## Default click target ================================================
+#ClicksTargetApp=yes
+
+## Modifier key for overriding default =================================
+#ClickTargetMod=shift
+
+## Mouse auto-hiding ===================================================
+#HideMouse=on
+
+## Elastic text selection ==============================================
+#ElasticMouse=off
+
+
+
+########################################################################
+# Window                                                               #
+########################################################################
+
+## Columns =============================================================
+#Columns=80
+#ColSpacing=0
+
+## Rows ================================================================
+#Rows=24
+#RowSpacing=0
+
+#Padding=1
+
+## Ligatures support ===================================================
+#LigaturesSupport=0
+
+## Scrollback lines ====================================================
+#ScrollbackLines=10000
+
+## Scrollbar ===========================================================
+#Scrollbar=right
+
+## Modifier for scrolling ==============================================
+#ScrollMod=shift
+
+## PgUp and PgDn scroll without modifier ===============================
+#PgUpDnScroll=no
+
+## UI localization language ============================================
+#Language=
+
+
+
+########################################################################
+# Terminal                                                             #
+########################################################################
+
+## Terminal type =======================================================
+Term=mintty-direct
+
+## Answerback ==========================================================
+#Answerback=
+
+## Alternate screen ====================================================
+#NoAltScreen=false
+
+## Enable 132-column mode switching ====================================
+#Enable132ColumnSwitching=false
+
+## Apply old wraparound behaviour ======================================
+#OldWrapModes=false
+
+## Allow control sequence to set selection =============================
+#AllowSetSelection=false
+
+## Bell ================================================================
+BellType=0
+#BellFile=
+BellFlash=yes
+#BellFlashStyle=4
+#BellTaskbar=yes
+#BellPopup=no
+#BellInterval=100
+#BellFreq=0
+#BellLen=400
+
+## Printer =============================================================
+#Printer=
+
+## Prompt about running processes on close =============================
+#ConfirmExit=yes
+
+## Suppress mouse wheel ================================================
+#SuppressMouseWheel=
+
+
+
+########################################################################
+# Command line
+########################################################################
+
+## Holding the window open =============================================
+Hold=error
+
+## Window icon =========================================================
+#Icon=
+
+## Log file ============================================================
+#Log=
+
+## Logging initially enabled ===========================================
+#Logging=yes
+
+## Window title ========================================================
+#Title=
+
+## Utmp record =========================================================
+Utmp=yes
+
+## Initial window state ================================================
+#Window=normal
+
+## Window position =====================================================
+#X=
+#Y=
+
+## Window class name ===================================================
+#Class=mintty
+
+
+
+########################################################################
+# Hidden settings
+########################################################################
+
+## Accelerate display speed ============================================
+#DisplaySpeedup=6
+
+## Decelerate display speed to virtual serial transmission rate ========
+#Baud=0
+
+## Clear selection highlighting on input ===============================
+#ClearSelectionOnInput=true
+
+## Suspend output while selecting ======================================
+#SuspendWhileSelecting=8080
+
+## Trim trailing space from selection on copy ==========================
+#TrimSelection=true
+
+## Selection size indication ===========================================
+#SelectionShowSize=0
+
+## Show hyperlink in window title when hovering ========================
+#HoverTitle=true
+
+## Single-dash long options ============================================
+#ShortLongOpts=false
+
+## Character width handling ============================================
+Charwidth=unicode
+
+## Emoji support =======================================================
+#Emojis=none
+
+## Emoji placement =====================================================
+#EmojiPlacement=stretch
+
+## Bidirectional rendering =============================================
+#Bidi=2
+
+## Application ID ======================================================
+#AppID=
+
+## Application Taskbar Shortcut Title ==================================
+#AppName=
+
+## Application Taskbar Shortcut Launch Command =========================
+#AppLaunchCmd=
+
+## Word selection characters ===========================================
+#WordChars=
+
+## Word selection exclusion characters =================================
+#WordCharsExcl=
+
+## Filtering pasted text ===============================================
+#FilterPasteControls=
+
+## User-defined shortcuts ==============================================
+#KeyFunctions=
+
+# Use system colours ===================================================
+#UseSystemColours=no
+
+# IME cursor colour ====================================================
+#IMECursorColour=
+
+# ANSI colours =========================================================
+#Black=0,0,0
+#Red=191,0,0
+#Green=0,191,0
+#Yellow=191,191,0
+#Blue=0,0,191
+#Magenta=191,0,191
+#Cyan=0,191,191
+#White=191,191,191
+#BoldBlack=64,64,64
+#BoldRed=255,64,64
+#BoldGreen=64,255,64
+#BoldYellow=255,255,64
+#BoldBlue=96,96,255
+#BoldMagenta=255,64,255
+#BoldCyan=64,255,255
+#BoldWhite=255,255,255
+
+# Selection highlight colours ==========================================
+#HighlightBackgroundColour=
+#HighlightForegroundColour=
+
+# Scrollback search colours ============================================
+#SearchForegroundColour=black
+#SearchBackgroundColour=light yellow
+#SearchCurrentColour=bright yellow
+
+# Background image or texture ==========================================
+#Background=
+
+# Scrollback search bar ================================================
+#SearchBar=
+
+# Scrollback search context ============================================
+#SearchContext=0
+
+# Write if exited ======================================================
+#ExitWrite=no
+
+# Change title if exited ===============================================
+#ExitTitle=
+
+# Configure document opening by mouse click ============================
+#OpeningClicks=1
+
+# Control key and shortcut Shift exchange ==============================
+#CtrlExchangeShift=no
+
+# Mouse zooming ========================================================
+#ZoomMouse=yes
+
+# Disable Shift-coupled implicit font zooming ==========================
+#ZoomFontWithWindow=yes
+
+# Handling of DPI changes ==============================================
+#HandleDPI=2
+
+# Check availability of mintty version update ==========================
+#CheckVersionUpdate=900
+
+# Sixel image clipboard substitution ===================================
+#SixelClipChars=space
+
+# Drag-and-drop application-targetted commands =========================
+#DropCommands=
+
+# User commands PATH expansion =========================================
+#UserCommandsPath=/bin:%s
+
+# Context menu user commands ===========================================
+#CtxMenuFunctions=
+
+# System menu user commands ============================================
+#SysMenuFunctions=
+
+# Session launcher commands ============================================
+#SessionCommands=
+
+# Taskbar commands =====================================================
+#TaskCommands=
+
+# Menu contents ========================================================
+#MenuMouse=b
+#MenuCtrlMouse=e|ls
+#MenuMouse5=ls
+#MenuMenu=bs
+#MenuCtrlMenu=e|ls
