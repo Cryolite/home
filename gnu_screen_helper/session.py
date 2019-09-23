@@ -69,7 +69,7 @@ def get_all_sessions(params: Parameters,
         if m is not None:
             if not socket_path.is_fifo() and not socket_path.is_socket():
                 continue
-            session = ScreenSession(sty)
+            session = ScreenSession(params, sty)
             sessions.append(session)
             continue
 
