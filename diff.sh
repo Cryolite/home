@@ -20,6 +20,7 @@ function _diff ()
 
 files=(.bashrc
        .emacs
+       .emacs.d/lisp/term/screen.putty-256color.el
        .emacs.d/lisp/cmake-mode.el
        .emacs.d/lisp/yaml-mode.el
        .local/bin/common.sh

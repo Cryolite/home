@@ -28,7 +28,7 @@ startup_message off
 
 # The following setting of `term` seems the best to run Emacs with a
 # theme that requires 256 colors.
-term screen-256color
+term "$SCREEN_TERM"
 
 screen -t top 99 top -d1
 
