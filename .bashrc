@@ -140,7 +140,7 @@ if declare -p SCREEN_TERM &>/dev/null; then
 elif infocmp "screen.$TERM" &>/dev/null; then
     export SCREEN_TERM=screen.$TERM
 elif (( "$(tput colors)" >= 256 )); then
-    export SCREEN_TERM=screen-256
+    export SCREEN_TERM=screen-256color
 else
     export SCREEN_TERM=screen
 fi
