@@ -16,9 +16,6 @@ ulimit -c 0
 # Disable timeout.
 unset TMOUT
 
-# Add `~/.local/bin` to `PATH` environment variable.
-export PATH=$HOME/.local/bin${PATH:+:$PATH}
-
 #if [ -f /etc/debian_version ] && grep -Fq 'squeeze/sid' /etc/debian_version; then
 #    export LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}"
 #    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
