@@ -46,7 +46,9 @@ if declare -p TERM &>/dev/null; then
         declare -a fallback_terms
         case "$TERM" in
         xterm-direct)
-            fallback_terms+=(xterm-direct xterm-256color xterm)
+            # `xterm-direct` is not listed as a fallback because Emacs
+            # does not support it.
+            fallback_terms+=(xterm-256color xterm)
             ;;
         xterm-256color)
             fallback_terms+=(xterm-256color xterm)
@@ -61,7 +63,9 @@ if declare -p TERM &>/dev/null; then
             fallback_terms+=(putty xterm)
             ;;
         mintty-direct)
-            fallback_terms+=(mintty-direct xterm-direct mintty xterm-256color xterm)
+            # Neither `mintty-direct` nor `xterm-direct` is not listed
+            # as a fallback because Emacs does not support them.
+            fallback_terms+=(mintty xterm-256color xterm)
             ;;
         mintty-*|mintty)
             fallback_terms+=(mintty xterm-256color xterm)
