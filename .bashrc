@@ -63,8 +63,8 @@ if declare -p TERM &>/dev/null; then
             fallback_terms+=(putty xterm)
             ;;
         mintty-direct)
-            # Neither `mintty-direct` nor `xterm-direct` is not listed
-            # as a fallback because Emacs does not support them.
+            # Neither `mintty-direct` nor `xterm-direct` is listed as a
+            # fallback because Emacs does not support them.
             fallback_terms+=(mintty xterm-256color xterm)
             ;;
         mintty-*|mintty)
