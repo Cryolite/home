@@ -37,7 +37,7 @@ screen
 
 # Start `gnu_screen_helper` script.  In order for the script to work
 # properly, first set up a virtual environment on `~/.local` with
-# `$ virtualenv ~/.local`, and then install the script with
+# `$ python3 -m venv ~/.local`, and then install the script with
 # `. ~/.local/bin/activate && pip3 install $WORK_TREE`.
 #
 # `gnu_screen_helper` script formats and updates the hardware statuses
