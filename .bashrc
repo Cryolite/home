@@ -169,8 +169,8 @@ fi
 #                                                                      #
 ########################################################################
 
-# Don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options.
+# Don't put duplicate lines or lines starting with space in the
+# history. See bash(1) for more options.
 HISTCONTROL=ignoreboth
 
 # Append to the history file, don't overwrite it.
@@ -182,8 +182,8 @@ HISTFILESIZE=100000
 HISTTIMEFORMAT='%Y/%m/%d %T  '
 
 # Ignore some controlling instructions.  `HISTIGNORE` is a
-# colon-delimited list of patterns which should be excluded.  The '&' is
-# a special pattern which suppresses duplicate entries.
+# colon-delimited list of patterns which should be excluded.  The '&'
+# is a special pattern which suppresses duplicate entries.
 #export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
 #export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
 
@@ -206,8 +206,8 @@ HISTTIMEFORMAT='%Y/%m/%d %T  '
 # Don't use ^D to exit.
 #set -o ignoreeof
 
-# Check the window size after each command and, if necessary, update the
-# values of LINES and COLUMNS.
+# Check the window size after each command and, if necessary, update
+# the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
 # Use case-insensitive filename globbing.
@@ -239,7 +239,7 @@ export EDITOR='emacs -nw'
 if [[ -x /usr/bin/dircolors ]]; then
     unset LS_COLORS
     if [[ -r ~/.dircolors ]]; then
-        eval "$(dircolors -b ~/.dircolors)"
+        eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     fi
     # `DIR_COLORS.256color` is not my preference.
     #if [[ -z $LS_COLORS && -r /etc/DIR_COLORS.256color ]] && (( "$(tput colors)" >= 256 )); then
@@ -266,6 +266,9 @@ if [[ -x /usr/bin/dircolors ]]; then
     alias fgrep='fgrep --color=auto'
     alias egrep='egrep --color=auto'
 fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
 alias cd='pushd'
 alias p='popd'
@@ -401,8 +404,8 @@ unset c
 ########################################################################
 
 # Enable programmable completion features (you don't need to enable
-# this, if it's already enabled in `/etc/bash.bashrc` and `/etc/profile`
-# sources `/etc/bash.bashrc`).
+# this, if it's already enabled in `/etc/bash.bashrc` and
+# `/etc/profile` sources `/etc/bash.bashrc`).
 if ! shopt -oq posix; then
     if [[ -f /usr/share/bash-completion/bash_completion ]]; then
         . /usr/share/bash-completion/bash_completion
@@ -673,14 +676,16 @@ unset ps1
 
 
 # Configurations to establish TeX Live environment.
-case "$TERM" in
-    screen*) ;;
-    *)
-        export INFOPATH="${INFOPATH:+$INFOPATH:}/usr/local/texlive/2013/texmf-dist/doc/info"
-        export MANPATH="$MANPATH:/usr/local/texlive/2013/texmf-dist/doc/man"
-        export PATH="${PATH:+$PATH:}/usr/local/texlive/2013/bin/x86_64-linux"
-        ;;
-esac
+if [[ -d /usr/local/texlive ]]; then
+    case "$TERM" in
+        screen*) ;;
+        *)
+            export INFOPATH="${INFOPATH:+$INFOPATH:}/usr/local/texlive/2013/texmf-dist/doc/info"
+            export MANPATH="$MANPATH:/usr/local/texlive/2013/texmf-dist/doc/man"
+            export PATH="${PATH:+$PATH:}/usr/local/texlive/2013/bin/x86_64-linux"
+            ;;
+    esac
+fi
 
 
 case "$TERM" in
