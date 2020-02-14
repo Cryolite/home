@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+packages_to_install=(
+  color-theme-sanityinc-tomorrow
+  dockerfile-mode)
+
+elisp_script_path="$(mktemp)"
+trap "rm -f '$elisp_script_path'" EXIT
+cat >"$elisp_script_path" <<'EOF'
+(require 'package)
+(add-to-list 'package-archives (cons "melpa-stable" "https://stable.melpa.org/packages/") t)
+(package-initialize)
+(package-install package-to-install)
+EOF
+
+for package_to_install in "${packages_to_install[@]}"; do
+  emacs --batch --eval "(defconst package-to-install '$package_to_install)" -l "$elisp_script_path"
+done
