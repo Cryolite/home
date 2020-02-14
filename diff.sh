@@ -22,7 +22,6 @@ files=(.bashrc
        .emacs
        .emacs.d/lisp/term/putty.el
        .emacs.d/lisp/term/screen.putty-256color.el
-       .emacs.d/lisp/yaml-mode.el
        .local/bin/common.sh
        .local/bin/reattach
        .screen/ps0-hook.py

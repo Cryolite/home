@@ -4,6 +4,7 @@ set -euo pipefail
 
 packages_to_install=(
   color-theme-sanityinc-tomorrow
+  yaml-mode
   cmake-mode
   dockerfile-mode)
 
