@@ -4,6 +4,7 @@ set -euo pipefail
 
 packages_to_install=(
   color-theme-sanityinc-tomorrow
+  cmake-mode
   dockerfile-mode)
 
 elisp_script_path="$(mktemp)"
