@@ -337,6 +337,13 @@ There are two things you can do about this warning:
              (enable-electric-local-modes)))
 
 
+;=======================================================================
+; Dockerfile mode
+;=======================================================================
+(require 'dockerfile-mode)
+(add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode))
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
