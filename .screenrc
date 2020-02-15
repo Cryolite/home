@@ -36,9 +36,13 @@ chdir
 screen
 
 # Start `gnu_screen_helper` script.  In order for the script to work
-# properly, first set up a virtual environment on `~/.local` with
-# `$ python3 -m venv ~/.local`, and then install the script with
-# `. ~/.local/bin/activate && pip3 install $WORK_TREE`.
+# properly, take one of the following steps:
+#
+#   * install the script to one of the standard paths, e.g.,
+#     `# pip3 install -U 'git+https://github.com/Cryolite/home'`, or
+#   * first set up a virtual environment on `~/.local` with
+#     `$ python3 -m venv ~/.local` and then install the script with
+#     `$ . ~/.local/bin/activate && pip3 install $WORK_TREE`.
 #
 # `gnu_screen_helper` script formats and updates the hardware statuses
 # of all GNU screen sessions with a short interval.  Therefore, the
@@ -62,4 +66,4 @@ screen
 # `gnu_screen_helper` is running, invoking `gnu_screen_helper` do not
 # fork any further background process, has no effect, and then exits
 # immediately.
-screen bash -c '{ . ~/.local/bin/activate && gnu_screen_helper --daemonize --fqdn; } || sleep 60'
+screen bash -c '{ { which gnu_screen_helper &>/dev/null || . ~/.local/bin/activate; } && gnu_screen_helper --daemonize --fqdn; } || sleep 60'
