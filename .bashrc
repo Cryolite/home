@@ -141,7 +141,12 @@ function _show_error_message ()
 #=======================================================================
 if declare -p SCREEN_TERM &>/dev/null; then
     :
-elif infocmp "screen.$TERM" &>/dev/null; then
+elif [[ $TERM == putty-256color ]] && infocmp "screen.$TERM" &>/dev/null; then
+    # In GNU screen on mintty, `TERM=screen.xterm-256color` does not
+    # work properly for Emacs.  On the other hand, in GNU screen on
+    # PuTTY, neither `TERM=putty-256color` nor `TERM=xterm-256color`
+    # works properly for Emacs.  Therefore, the `TERM` environment
+    # variable is set to `screen.$TERM` only if `TERM=putty-256color`.
     export SCREEN_TERM=screen.$TERM
 elif (( "$(tput colors)" >= 256 )); then
     export SCREEN_TERM=screen-256color
