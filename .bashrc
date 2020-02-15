@@ -10,6 +10,9 @@
 #                                                                      #
 ########################################################################
 
+# Set umask.
+umask 0022
+
 # Prohibit core dump files to be created.
 ulimit -c 0
 
