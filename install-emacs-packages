@@ -12,8 +12,9 @@ elisp_script_path="$(mktemp)"
 trap "rm -f '$elisp_script_path'" EXIT
 cat >"$elisp_script_path" <<'EOF'
 (require 'package)
-(add-to-list 'package-archives (cons "melpa-stable" "https://stable.melpa.org/packages/") t)
 (package-initialize)
+(add-to-list 'package-archives (cons "melpa-stable" "https://stable.melpa.org/packages/") t)
+(package-refresh-contents)
 (package-install package-to-install)
 EOF
 
