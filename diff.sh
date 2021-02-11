@@ -19,6 +19,7 @@ function _diff ()
 }
 
 files=(.bashrc
+       .config/procps/toprc
        .emacs
        .emacs.d/lisp/term/putty.el
        .emacs.d/lisp/term/screen.putty-256color.el
@@ -27,8 +28,7 @@ files=(.bashrc
        .screen/ps0-hook.py
        .screen/rm-stale-session-dirs.sh
        .screen/screendir.sh
-       .screenrc
-       .toprc)
+       .screenrc)
 for f in "${files[@]}"; do
     _diff "$f"
 done

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
+cp -ri .bashrc .config .emacs .emacs.d .local .screen .screenrc ~
+
+./install-emacs-packages
+
+python3 -m venv ~/.local
+. ~/.local/bin/activate
+pip3 install -U pip
+pip3 install -U wheel
+pip3 install -U .
+deactivate
